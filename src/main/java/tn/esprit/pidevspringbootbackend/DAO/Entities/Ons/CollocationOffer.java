@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.FurnitureCollocation;
+import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Gender;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +28,7 @@ public class CollocationOffer {
     private int availablePlaces ;
     private Date dateRent ;
     private Date dateOffer ;
+    private Gender gender ;
     @ElementCollection
     private List<String> imageCollocation = new ArrayList<>();
     private float price ;
