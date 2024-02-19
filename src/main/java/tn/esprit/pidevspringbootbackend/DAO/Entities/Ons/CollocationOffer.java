@@ -41,6 +41,8 @@ public class CollocationOffer {
     private User user;
     @OneToMany(mappedBy = "collocationOffer")
     private  List<CollocationRequest> collocationRequests = new ArrayList<>() ;
+    @OneToMany(mappedBy = "collocationOffer")
+    private  List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
 
 }

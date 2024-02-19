@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationFeedback;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationPreferences;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
@@ -99,5 +100,7 @@ public class User {
     private  List<CollocationRequest> collocationRequests = new ArrayList<>() ;
     @OneToMany(mappedBy = "user")
     private List<CollocationPreferences> collocationPreferences = new ArrayList<>();
+    @ManyToMany (mappedBy = "users")
+    private List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
 }
