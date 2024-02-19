@@ -4,9 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationPreferences;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -88,5 +93,11 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+    @OneToMany (mappedBy = "user")
+    private List<CollocationOffer> collocationOffers = new ArrayList<>() ;
+    @OneToMany
+    private  List<CollocationRequest> collocationRequests = new ArrayList<>() ;
+    @OneToMany(mappedBy = "user")
+    private List<CollocationPreferences> collocationPreferences = new ArrayList<>();
 
 }
