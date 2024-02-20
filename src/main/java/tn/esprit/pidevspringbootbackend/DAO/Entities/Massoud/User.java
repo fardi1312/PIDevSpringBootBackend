@@ -8,6 +8,10 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationFeedback;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationPreferences;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingOffer;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingPreferences;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingRequest;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.PointCount;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -103,4 +107,14 @@ public class User {
     @ManyToMany (mappedBy = "users")
     private List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
+
+
+    @OneToOne
+    PointCount pointCount ;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<CarpoolingOffer> CarpoolingOffers  = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<CarpoolingRequest> CarpoolingRequests = new ArrayList<>();
+    @OneToMany(mappedBy = "userS")
+    private List<CarpoolingPreferences> carpoolingPreferences = new ArrayList<>();
 }

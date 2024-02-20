@@ -3,5 +3,6 @@ package tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms;
 public enum Gender {
     Male,
     Female ,
-    Other
+    Other,
+    Male_or_Female
 }
