@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Amira.Inscription;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationFeedback;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationPreferences;
@@ -117,4 +118,6 @@ public class User {
     private List<CarpoolingRequest> CarpoolingRequests = new ArrayList<>();
     @OneToMany(mappedBy = "userS")
     private List<CarpoolingPreferences> carpoolingPreferences = new ArrayList<>();
+    @OneToMany(mappedBy = "usera")
+    private List<Inscription> inscriptions;
 }
