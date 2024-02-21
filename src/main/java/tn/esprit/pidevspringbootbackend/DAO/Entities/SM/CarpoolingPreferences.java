@@ -1,5 +1,6 @@
 package tn.esprit.pidevspringbootbackend.DAO.Entities.SM;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
@@ -35,8 +36,9 @@ public class CarpoolingPreferences {
     private Boolean climatise ;
     private Boolean chauffage ;
     private Boolean smoking ;
-
+    @JsonIgnore
     @ManyToOne
     private User userS ;
+
 
 }

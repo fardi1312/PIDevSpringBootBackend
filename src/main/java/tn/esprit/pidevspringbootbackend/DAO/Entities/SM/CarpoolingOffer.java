@@ -1,7 +1,9 @@
 package tn.esprit.pidevspringbootbackend.DAO.Entities.SM;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Gender;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.SM.CarpoolingStatus;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.SM.CarpoolingType;
@@ -46,10 +48,13 @@ public class CarpoolingOffer {
     private Boolean climatise ;
     private Boolean chauffage ;
     private Boolean smoking ;
-
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy="carpoolingoffer")
-    private List<CarpoolingRequest> CarpoolingRequests  = new ArrayList<>();
 
+    private List<CarpoolingRequest> CarpoolingRequests  = new ArrayList<>();
+    @JsonIgnore
+    @ManyToOne
+    User userO;
 
 
 

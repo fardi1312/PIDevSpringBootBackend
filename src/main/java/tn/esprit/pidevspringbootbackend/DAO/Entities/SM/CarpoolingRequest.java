@@ -1,7 +1,9 @@
 package tn.esprit.pidevspringbootbackend.DAO.Entities.SM;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Request;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.SM.CarpoolingStatus;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.SM.CarpoolingType;
@@ -30,15 +32,19 @@ public class CarpoolingRequest {
     private double priceRequeste;
     @Enumerated(EnumType.STRING)
     private CarpoolingType requestType;
+
     @ElementCollection
     private List<Date> DateRetourReserver = new ArrayList<>();
     @ElementCollection
     private List<Date> DateAllerReserver = new ArrayList<>();
 
-
+    @JsonIgnore
     @ManyToOne
-    CarpoolingOffer carpoolingoffer;
 
+    CarpoolingOffer carpoolingoffer;
+    @JsonIgnore
+    @ManyToOne
+    private User userR ;
 
 
 

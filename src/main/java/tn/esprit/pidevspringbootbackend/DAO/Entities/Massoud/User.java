@@ -112,9 +112,9 @@ public class User {
 
     @OneToOne
     PointCount pointCount ;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userO")
     private List<CarpoolingOffer> CarpoolingOffers  = new ArrayList<>();
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userR")
     private List<CarpoolingRequest> CarpoolingRequests = new ArrayList<>();
     @OneToMany(mappedBy = "userS")
     private List<CarpoolingPreferences> carpoolingPreferences = new ArrayList<>();

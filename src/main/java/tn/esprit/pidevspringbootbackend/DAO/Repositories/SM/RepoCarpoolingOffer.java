@@ -5,4 +5,7 @@ import org.springframework.stereotype.Repository;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingOffer;
 @Repository
 public interface RepoCarpoolingOffer extends JpaRepository<CarpoolingOffer,Long> {
+
+
+
 }
