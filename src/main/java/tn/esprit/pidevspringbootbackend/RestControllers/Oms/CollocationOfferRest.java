@@ -4,14 +4,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
+import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationRequestService;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/collocationoffers")
-public class CollocationRest {
+@RequestMapping("/api/collocation")
+public class CollocationOfferRest {
     @Autowired
     private  CollocationOfferServices collocationOfferServices;
 
@@ -62,5 +64,7 @@ public class CollocationRest {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 }
+
+
+
