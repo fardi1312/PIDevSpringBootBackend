@@ -8,6 +8,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingPreferences;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingRequest;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.PointCount;
+import tn.esprit.pidevspringbootbackend.DAO.Enumeration.SM.CarpoolingType;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoCarpoolingOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoCarpoolingPreferences;
@@ -60,27 +61,40 @@ c.setUserO(u);
     public  CarpoolingRequest addCarpoolingRequest(Long id, Long idO, CarpoolingRequest c){
 
        CarpoolingOffer o = repoCarpoolingOffer.findById(idO).orElse(null);
-
        User u = repoUser.findById(id).orElse(null);
        PointCount pc = u.getPointCount();
+       double priceF= o.getPrice();
+       if (o.getCarpoolingType()== CarpoolingType.Aller_et_Retour    ){
+           if ( c.getRequestType()==CarpoolingType.Aller_et_Retour){
+
+             // priceF=  priceF*2*c.getPlaceNbre();
+
+           }
+           else if(c.getRequestType()==CarpoolingType.Aller){
+
+            //   priceF=  priceF*c.getPlaceNbre();
+           }
+           else if(c.getRequestType()==CarpoolingType.Retour){
+               //o.setCarpoolingType(CarpoolingType.Aller);
+            //   priceF=  priceF*c.getPlaceNbre();
+           }
+
+       }
 
 
-       if( pc.getNbPoint()>o.getPrice()){
+       if( pc.getNbPoint()>priceF){
 
-          pc.setNbPoint( pc.getNbPoint()-o.getPrice());
+          pc.setNbPoint( pc.getNbPoint()-priceF);
 
-o.getUserO().getPointCount().setNbPoint(o.getUserO().getPointCount().getNbPoint()+o.getPrice());
+o.getUserO().getPointCount().setNbPoint(o.getUserO().getPointCount().getNbPoint()+o.getPrice()*priceF);
        }
 
         o.getCarpoolingRequests().add(c);
-        ///repoCarpoolingOffer.save(O);
         c.setCarpoolingoffer(o);
-
-
         u.getCarpoolingRequests().add(c);
 c.setUserR(u);
 
-      //  repoUser.save(u);
+
 
         return repoCarpoolingRequest.save(c);
    }

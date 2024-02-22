@@ -26,7 +26,8 @@ public class CarpoolingRequest {
 
     private Long CarppoolingRequestId;
     private Date ReservationDate;
-    private int PlaceNbre;
+    private int NbPlacesAller;
+    private int NbPlacesRetour;
     @Enumerated(EnumType.STRING)
     private Request requestStatus;
     private double priceRequeste;
