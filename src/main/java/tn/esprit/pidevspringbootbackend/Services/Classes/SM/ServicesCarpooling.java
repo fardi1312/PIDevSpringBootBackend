@@ -63,40 +63,31 @@ c.setUserO(u);
        CarpoolingOffer o = repoCarpoolingOffer.findById(idO).orElse(null);
        User u = repoUser.findById(id).orElse(null);
        PointCount pc = u.getPointCount();
-       double priceF= o.getPrice();
-       if (o.getCarpoolingType()== CarpoolingType.Aller_et_Retour    ){
-           if ( c.getRequestType()==CarpoolingType.Aller_et_Retour){
 
-             // priceF=  priceF*2*c.getPlaceNbre();
 
-           }
-           else if(c.getRequestType()==CarpoolingType.Aller){
+       if (c.getNbPlacesAller()<=o.getPlaceDispoAller() && c.getNbPlacesRetour()<=o.getPlaceDispoRetour()) {
+          double priceF = o.getPrice() * (c.getNbPlacesRetour() + c.getNbPlacesAller());
+          if (pc.getNbPoint() >= priceF) {
+              o.setPlaceDispoAller(o.getPlaceDispoAller()-c.getNbPlacesAller());
+              o.setPlaceDispoRetour(o.getPlaceDispoRetour()-c.getNbPlacesRetour());
 
-            //   priceF=  priceF*c.getPlaceNbre();
-           }
-           else if(c.getRequestType()==CarpoolingType.Retour){
-               //o.setCarpoolingType(CarpoolingType.Aller);
-            //   priceF=  priceF*c.getPlaceNbre();
-           }
+              pc.setNbPoint(pc.getNbPoint() - priceF);
+              o.getUserO().getPointCount().setNbPoint(o.getUserO().getPointCount().getNbPoint() + priceF);
 
+              o.getCarpoolingRequests().add(c);
+              c.setCarpoolingoffer(o);
+              u.getCarpoolingRequests().add(c);
+              c.setUserR(u);
+              return repoCarpoolingRequest.save(c);
+
+          }
        }
 
 
-       if( pc.getNbPoint()>priceF){
-
-          pc.setNbPoint( pc.getNbPoint()-priceF);
-
-o.getUserO().getPointCount().setNbPoint(o.getUserO().getPointCount().getNbPoint()+o.getPrice()*priceF);
-       }
-
-        o.getCarpoolingRequests().add(c);
-        c.setCarpoolingoffer(o);
-        u.getCarpoolingRequests().add(c);
-c.setUserR(u);
 
 
 
-        return repoCarpoolingRequest.save(c);
+        return null ;
    }
 
    @Override
