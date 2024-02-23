@@ -57,9 +57,4 @@ public class CarpoolingOffer {
     User userO;
 
 
-
-
-
-
-
 }

@@ -7,41 +7,41 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationPreferences;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationPreferencesService;
 
-import java.util.List;
 
 @RestController
-@RequestMapping("/api/collocation/preferences")
-
+@RequestMapping("/api/collocationPreferences")
 public class CollocationPreferencesRest {
+
     @Autowired
-    CollocationPreferencesService collocationPreferencesService;
-    @GetMapping
-    public ResponseEntity<List<CollocationPreferences>> getAllCollocationPreferences() {
-        List<CollocationPreferences> preferencesList = collocationPreferencesService.getAllCollocationPreferences();
-        return new ResponseEntity<List<CollocationPreferences>>(preferencesList, HttpStatus.OK);
-    }
+    private CollocationPreferencesService collocationPreferencesService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CollocationPreferences> getCollocationPreferencesById(@PathVariable long id) {
-        CollocationPreferences preferences = collocationPreferencesService.getCollocationPreferencesById(id);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<CollocationPreferences> getAllCollocationPreferencesByUserId(@PathVariable long userId) {
+        CollocationPreferences preferences = collocationPreferencesService.getAllCollocationPreferencesByUserId(userId);
         return new ResponseEntity<>(preferences, HttpStatus.OK);
-
     }
-    @PostMapping
-    public ResponseEntity<CollocationPreferences> createCollocationPreferences(@RequestBody CollocationPreferences preferences) {
-        CollocationPreferences createdPreferences = collocationPreferencesService.createCollocationPreferences(preferences);
+
+    @GetMapping("/user/{userId}/{collocationPreferencesId}")
+    public ResponseEntity<CollocationPreferences> getCollocationPreferencesById(@PathVariable long userId) {
+        CollocationPreferences preferences = collocationPreferencesService.getCollocationPreferencesById(userId);
+        return new ResponseEntity<>(preferences, HttpStatus.OK);
+    }
+
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<CollocationPreferences> createCollocationPreferences(@PathVariable long userId, @RequestBody CollocationPreferences preferences) {
+        CollocationPreferences createdPreferences = collocationPreferencesService.createCollocationPreferences(userId, preferences);
         return new ResponseEntity<>(createdPreferences, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CollocationPreferences> updateCollocationPreferences(@PathVariable long id, @RequestBody CollocationPreferences updatedPreferences) {
-        CollocationPreferences preferences = collocationPreferencesService.updateCollocationPreferences(id, updatedPreferences);
-        return new ResponseEntity<>(preferences, HttpStatus.OK);
+    @PutMapping("/user/{userId}/{collocationPreferencesId}")
+    public ResponseEntity<CollocationPreferences> updateCollocationPreferences(@PathVariable long userId, @PathVariable long collocationPreferencesId, @RequestBody CollocationPreferences updatedPreferences) {
+        CollocationPreferences updatedPreferencesResult = collocationPreferencesService.updateCollocationPreferences(userId, collocationPreferencesId, updatedPreferences);
+        return new ResponseEntity<>(updatedPreferencesResult, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCollocationPreferences(@PathVariable long id) {
-        collocationPreferencesService.deleteCollocationPreferences(id);
+    @DeleteMapping("/user/{userId}/{collocationPreferencesId}")
+    public ResponseEntity<Void> deleteCollocationPreferences(@PathVariable long userId, @PathVariable long collocationPreferencesId) {
+        collocationPreferencesService.deleteCollocationPreferences(userId, collocationPreferencesId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

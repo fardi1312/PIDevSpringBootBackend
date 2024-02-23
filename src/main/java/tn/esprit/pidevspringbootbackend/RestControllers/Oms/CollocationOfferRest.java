@@ -64,6 +64,30 @@ public class CollocationOfferRest {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    @PostMapping("/offers/accept/{offerId}/request/{requestId}")
+    public ResponseEntity<Void> acceptCollocationRequest(
+            @PathVariable long offerId,
+            @PathVariable long requestId) {
+
+        boolean accepted = collocationOfferServices.acceptRequest(offerId, requestId);
+
+        if (accepted) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/offers/create")
+    public ResponseEntity<CollocationOffer> createCollocationOfferAndAssociateUser(
+            @RequestBody CollocationOffer collocationOffer,
+            @RequestParam long userId) {
+
+        CollocationOffer createdOffer = collocationOfferServices.saveCollocationOfferAndAssociateUser(collocationOffer, userId);
+
+        return new ResponseEntity<>(createdOffer, HttpStatus.CREATED);
+    }
+
 }
 
 

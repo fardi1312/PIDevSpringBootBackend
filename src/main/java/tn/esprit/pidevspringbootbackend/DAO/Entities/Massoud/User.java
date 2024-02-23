@@ -103,8 +103,8 @@ public class User {
     private List<CollocationOffer> collocationOffers = new ArrayList<>() ;
     @OneToMany
     private  List<CollocationRequest> collocationRequests = new ArrayList<>() ;
-    @OneToMany(mappedBy = "user")
-    private List<CollocationPreferences> collocationPreferences = new ArrayList<>();
+    @OneToOne(mappedBy = "user")
+    private CollocationPreferences collocationPreferences;
     @ManyToMany (mappedBy = "users")
     private List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 

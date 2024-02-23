@@ -22,4 +22,6 @@ public class RoomDetails {
 
     @ManyToOne
     private CollocationOffer collocationOffer;
+    @ManyToOne
+    private CollocationRequest collocationRequest ;
 }

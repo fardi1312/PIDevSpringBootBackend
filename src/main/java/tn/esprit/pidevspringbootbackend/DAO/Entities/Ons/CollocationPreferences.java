@@ -9,6 +9,9 @@ import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Interest;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Pets;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.RoomType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -19,9 +22,9 @@ public class CollocationPreferences {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idCollocationPreferences ;
+    @ElementCollection(targetClass = Pets.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-
-    private Pets pets;
+    private List<Pets> pets = new ArrayList<>();
     private Boolean smoking ;
     private float budget ;
     @Enumerated(EnumType.STRING)
@@ -35,7 +38,7 @@ public class CollocationPreferences {
     private RoomType roomType ;
     private int HouseType ;
     private String location ;
-    @ManyToOne
+    @OneToOne
     private User user ;
 
 

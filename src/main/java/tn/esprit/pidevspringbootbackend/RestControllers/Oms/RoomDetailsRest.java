@@ -30,8 +30,8 @@ public class RoomDetailsRest {
     }
 
     @PostMapping
-    public ResponseEntity<RoomDetails> createRoomDetails(@RequestBody RoomDetails roomDetails) {
-        RoomDetails createdRoomDetails = roomDetailsService.createRoomDetails(roomDetails);
+    public ResponseEntity<RoomDetails> createRoomDetails(@RequestBody RoomDetails roomDetails,@PathVariable long idOffer) {
+        RoomDetails createdRoomDetails = roomDetailsService.createRoomDetailsForOffer(idOffer, roomDetails);
         return new ResponseEntity<>(createdRoomDetails, HttpStatus.CREATED);
     }
 
@@ -46,5 +46,6 @@ public class RoomDetailsRest {
         roomDetailsService.deleteRoomDetails(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 
 }
