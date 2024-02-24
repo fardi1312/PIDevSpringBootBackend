@@ -26,7 +26,7 @@ public class CollocationPreferencesService {
         return user.getCollocationPreferences();
     }
 
-    public CollocationPreferences getCollocationPreferencesById(long userId) {
+    public CollocationPreferences getCollocationPreferencesByIdUser(long userId) {
         CollocationPreferences preferences;
         preferences = userRepository.getReferenceById(userId).getCollocationPreferences();
         return preferences;

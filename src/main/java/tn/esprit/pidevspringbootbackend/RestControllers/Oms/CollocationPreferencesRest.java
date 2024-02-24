@@ -23,7 +23,7 @@ public class CollocationPreferencesRest {
 
     @GetMapping("/user/{userId}/{collocationPreferencesId}")
     public ResponseEntity<CollocationPreferences> getCollocationPreferencesById(@PathVariable long userId) {
-        CollocationPreferences preferences = collocationPreferencesService.getCollocationPreferencesById(userId);
+        CollocationPreferences preferences = collocationPreferencesService.getCollocationPreferencesByIdUser(userId);
         return new ResponseEntity<>(preferences, HttpStatus.OK);
     }
 
