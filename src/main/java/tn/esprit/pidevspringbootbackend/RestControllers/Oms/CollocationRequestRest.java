@@ -31,19 +31,18 @@ private CollocationRequestService collocationRequestService;
     }
 
     @PostMapping
-    public ResponseEntity<CollocationRequest> createCollocationRequest(@RequestBody CollocationRequest collocationRequest) {
-        CollocationRequest createdCollocationRequest = collocationRequestService.saveCollocationRequest(collocationRequest);
+    public ResponseEntity<CollocationRequest> createCollocationRequest(@RequestBody CollocationRequest collocationRequest,@PathVariable long idUser) {
+        CollocationRequest createdCollocationRequest = collocationRequestService.saveCollocationRequest(collocationRequest,idUser);
         return new ResponseEntity<>(createdCollocationRequest, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CollocationRequest> updateCollocationRequest(
-            @PathVariable long id, @RequestBody CollocationRequest updatedCollocationRequest) {
+    public ResponseEntity<CollocationRequest> updateCollocationRequest(@PathVariable long id, @RequestBody CollocationRequest updatedCollocationRequest,@PathVariable long idUser) {
         Optional<CollocationRequest> existingCollocationRequest = collocationRequestService.getCollocationRequestById(id);
 
         if (existingCollocationRequest.isPresent()) {
             updatedCollocationRequest.setIdCollocationRequest(id);
-            CollocationRequest updated = collocationRequestService.saveCollocationRequest(updatedCollocationRequest);
+            CollocationRequest updated = collocationRequestService.saveCollocationRequest(updatedCollocationRequest,idUser);
             return new ResponseEntity<>(updated, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -51,11 +50,11 @@ private CollocationRequestService collocationRequestService;
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCollocationRequest(@PathVariable long id) {
+    public ResponseEntity<Void> deleteCollocationRequest(@PathVariable long id,@PathVariable long idUser) {
         Optional<CollocationRequest> collocationRequest = collocationRequestService.getCollocationRequestById(id);
 
         if (collocationRequest.isPresent()) {
-            collocationRequestService.deleteCollocationRequest(id);
+            collocationRequestService.deleteCollocationRequest(id,idUser);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

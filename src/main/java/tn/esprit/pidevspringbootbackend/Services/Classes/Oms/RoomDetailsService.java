@@ -39,7 +39,6 @@ public class RoomDetailsService {
         existingRoomDetails.setAvailablePlaces(updatedRoomDetails.getAvailablePlaces());
         existingRoomDetails.setRoomType(updatedRoomDetails.getRoomType());
         existingRoomDetails.setPrix(updatedRoomDetails.getPrix());
-
         return roomDetailsRepository.save(existingRoomDetails);
     }
 
