@@ -1,6 +1,8 @@
 package tn.esprit.pidevspringbootbackend.DAO.Entities.Ons;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
@@ -23,7 +25,9 @@ public class CollocationOffer {
     private long IdCollocationOffer ;
     private String location ;
     private int houseType ;
-    @OneToMany(mappedBy ="collocationOffer")
+    @OneToMany(mappedBy ="collocationOffer",cascade = CascadeType.ALL)
+    @JsonManagedReference
+
     private List<RoomDetails> roomDetailsList;
     private int availablePlaces ;
     private Date dateRent ;
@@ -36,12 +40,20 @@ public class CollocationOffer {
     private FurnitureCollocation furnitureCollocation ;
     @Lob
     private String descriptionCollocation ;
+  //
   //  private int collocationRating ;
     @ManyToOne
+    @JsonIgnore
+
     private User user;
+
     @OneToMany(mappedBy = "collocationOffer")
+    @JsonIgnore
+
     private  List<CollocationRequest> collocationRequests = new ArrayList<>() ;
     @OneToMany(mappedBy = "collocationOffer")
+    @JsonIgnore
+
     private  List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
 

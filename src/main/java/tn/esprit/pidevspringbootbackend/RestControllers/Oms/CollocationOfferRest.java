@@ -13,6 +13,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/collocation")
+@CrossOrigin("*")
+
 public class CollocationOfferRest {
     @Autowired
     private  CollocationOfferServices collocationOfferServices;

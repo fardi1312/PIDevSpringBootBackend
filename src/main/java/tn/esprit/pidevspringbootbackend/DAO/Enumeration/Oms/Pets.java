@@ -2,8 +2,9 @@ package tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms;
 
 public enum Pets {
     Cats,
-    Dogs ,
+    Dogs,
     Hamsters,
-    Birds ,
-    no
+    Birds,
+
 }
+

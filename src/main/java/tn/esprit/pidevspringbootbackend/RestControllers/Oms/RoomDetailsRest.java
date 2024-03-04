@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 
 @RequestMapping("/api/room-details")
+@CrossOrigin("*")
 
 public class RoomDetailsRest {
     @Autowired
