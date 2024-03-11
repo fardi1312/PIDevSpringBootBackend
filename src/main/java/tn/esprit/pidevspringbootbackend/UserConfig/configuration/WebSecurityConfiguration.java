@@ -19,77 +19,51 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tn.esprit.pidevspringbootbackend.UserConfig.filters.JwtRequestFilter;
-
-
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @Component
-
 public class WebSecurityConfiguration {
-
     @Autowired
     private JwtRequestFilter requestFilter;
-
-
-
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authRequest -> {
-            //3ndo permission y3ml login w y3ml sign-up yall massssss
-          //  authRequest.requestMatchers("/authenticate", "/sign-up").permitAll();
-          //  authRequest.requestMatchers("/dashboard/**").authenticated();
-
-            // ay request "anyRequest" ylzm ykon 3ml login
-               authRequest.anyRequest().permitAll();
-            // authRequest.requestMatchers("/api/**").authenticated();
-            // authRequest.requestMatchers("/api/admin").authenticated().hasRole("ADMIN");
+            // Permit all requests for "/signup" and "/authenticate" endpoints
+            authRequest.requestMatchers("/signup", "/authenticate").permitAll();
+            // All other requests require authentication
+            authRequest.anyRequest().authenticated();
         });
+        // Disable CORS, CSRF, and headers (since we're using JWT for authentication)
         http.cors(AbstractHttpConfigurer::disable);
         http.csrf(AbstractHttpConfigurer::disable);
         http.headers(AbstractHttpConfigurer::disable);
-        http.formLogin(formLogin -> {
-            formLogin.loginPage("/login");
-            formLogin.failureUrl("/login?error");
-        });
+        // Configure session management to be stateless (since we're using JWT)
         http.sessionManagement(sessionManagement -> {
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         });
+        // Add the JwtRequestFilter before the UsernamePasswordAuthenticationFilter
         http.addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
-
-
-
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
-
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         configuration.setAllowedOrigins(List.of("http://localhost:8083"));
-        configuration.setAllowedMethods(List.of("GET","POST"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
-
+        configuration.setAllowedMethods(List.of("GET", "POST"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**",configuration);
-
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

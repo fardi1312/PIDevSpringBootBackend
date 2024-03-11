@@ -6,4 +6,5 @@ import tn.esprit.pidevspringbootbackend.DTO.Massoud.UserDTO;
 
 public interface IAuthService {
     UserDTO createUser(SignupDTO signupDTO);
+    boolean verifyEmail(String email);
 }

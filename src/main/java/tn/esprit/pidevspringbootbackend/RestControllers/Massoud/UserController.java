@@ -1,37 +1,28 @@
 package tn.esprit.pidevspringbootbackend.RestControllers.Massoud;
 
-import com.sun.tools.jconsole.JConsoleContext;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
-import tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.jwt.UsersDetailsService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 import tn.esprit.pidevspringbootbackend.UserConfig.exception.UserNotFoundException;
-
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/user/account")
 public class UserController {
     private final IUserService userService;
-    private final PasswordEncoder passwordEncoder;
 
-
-
-
-    @GetMapping("/account")
+    @GetMapping("")
     public ResponseEntity<?> authenticatedUser(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             User user = userService.getUserByEmail(authentication.getName());
@@ -44,31 +35,21 @@ public class UserController {
             throw new IllegalStateException("User is not authenticated");
         }
     }
-
-    @PostMapping("/account/update/info")
+    @PostMapping("/update/info")
     public ResponseEntity<User> updateUserInfo(@Valid @RequestBody UpdateProfilDTO updateProfileDTO, Authentication authentication) {
-        // Check if the user is authenticated
         if (authentication != null && authentication.isAuthenticated()) {
-            // Retrieve the user by email from authentication
             User user = userService.getUserByEmail(authentication.getName());
             if (user != null) {
-                // Update user information with the provided DTO
                 user = userService.updateUserInfo(user, updateProfileDTO);
-                // Return the updated user information with HTTP status OK
                 return ResponseEntity.ok(user);
             } else {
-                // Throw exception if user not found
                 throw new UserNotFoundException("User not found");
             }
         } else {
-            // Throw exception if user is not authenticated
             throw new IllegalStateException("User is not authenticated");
         }
     }
-
-
-
-    @DeleteMapping("/account/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<Map<String, String>> deleteUser(Authentication authentication) {
         try {
             User user = userService.getUserByEmail(authentication.getName());
@@ -82,110 +63,48 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-    @PostMapping("/account/update/profilphoto")
-    public ResponseEntity<String> updateProfilePhoto(Authentication authentication,
-                                                     @RequestParam("profilePhoto") MultipartFile profilePhoto) {
-        try {
-            User user = userService.getUserByEmail(authentication.getName());
-
-            if (profilePhoto.isEmpty()) {
-                throw new IllegalArgumentException("Profile photo is empty");
-            }
-
-            userService.updateProfilPhoto(user, profilePhoto);
-
-            return ResponseEntity.ok("Profile photo updated successfully");
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("User not found");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Failed to update profile photo: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to update profile photo: " + e.getMessage());
+    @PostMapping("/update/profilephoto")
+    public ResponseEntity<User> updateProfilePhoto(
+            Authentication authentication,
+            @RequestParam("profilePhoto") MultipartFile profilePhoto) {
+        User user = userService.getUserByEmail(authentication.getName());
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        User updatedUser = userService.updateProfilePhoto(user, profilePhoto);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
-
-    @PutMapping("/account/update/coverphoto")
-    public ResponseEntity<String> updateCoverPhoto(Authentication authentication,
-                                                   @RequestParam("coverPhoto") MultipartFile coverPhoto) {
-        try {
-            // Retrieve the currently authenticated user
-            User user = userService.getUserByEmail(authentication.getName());
-            // Update the cover photo
-            userService.updateCoverPhoto(user, coverPhoto);
-            return ResponseEntity.ok("Cover photo updated successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to update cover photo: " + e.getMessage());
+    @PostMapping("/update/coverphoto")
+    public ResponseEntity<User> updateCoverPhoto(
+            Authentication authentication,
+            @RequestParam("coverPhoto") MultipartFile coverPhoto) {
+        User user = userService.getUserByEmail(authentication.getName());
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        User updatedUser = userService.updateCoverPhoto(user, coverPhoto);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
-
-
-
-
-
-
-
-
-
-
-
-    @PutMapping("/account/update/password")
+    @PutMapping("/update/password")
     public ResponseEntity<String> updatePassword(Authentication authentication,
                                                  @RequestBody UpdatePasswordDTO updatePasswordDTO) {
         try {
-            // Retrieve the currently authenticated user
             User user = userService.getUserByEmail(authentication.getName());
-
-            // Update the user's password
             userService.updatePassword(user, updatePasswordDTO);
-
             return ResponseEntity.ok("Password updated successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to update password: " + e.getMessage());
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @GetMapping(value = "/account/profilePhoto", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<byte[]> getProfilePhoto(Authentication authentication) {
-        try {
-            User user = userService.getUserByEmail(authentication.getName());
-            byte[] profilePhoto = userService.getProfilePhoto(user);
-            System.out.println("image detected");
-            return ResponseEntity.ok().body(profilePhoto);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(("Failed to retrieve profile photo: " + e.getMessage()).getBytes());
-        }
+    @GetMapping("/profilephoto")
+    public String getUserProfilePhotoUrl(Authentication authentication) {
+        User user = userService.getUserByEmail(authentication.getName());
+        return userService.getPhotoUrlForConnectedUser(user);
     }
-
-
-
-
-
-
-
-
-
-
-
+    @GetMapping("/coverphoto")
+    public String getUserCoverPhotoUrl(Authentication authentication) {
+        User user = userService.getUserByEmail(authentication.getName());
+        return userService.getCoverPhotoUrlForConnectedUser(user);
+    }
 }

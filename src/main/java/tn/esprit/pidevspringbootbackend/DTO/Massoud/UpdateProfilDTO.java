@@ -6,8 +6,6 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
-
 import java.util.Date;
 
 @Getter
@@ -16,7 +14,6 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProfilDTO {
-
 
     @NotEmpty
     @Size(max = 64)
@@ -44,11 +41,8 @@ public class UpdateProfilDTO {
     @Size(max = 128)
     private String workplace;
 
-
     @Size(max = 20)
     private String phoneNumber;
-
-
 
 
     @Past

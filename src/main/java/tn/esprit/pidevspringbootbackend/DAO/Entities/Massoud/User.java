@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.Amira.Inscription;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationFeedback;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationPreferences;
@@ -34,8 +33,6 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUser;
-
-
 
     @Column(length = 128, nullable = false, unique = true)
     private String username;
@@ -71,8 +68,10 @@ public class User implements UserDetails {
     @Column(length = 128)
     private String workplace;
 
-    @Column(length = 256)
+    @Column(length = 1000)
+    @Lob
     private String profilePhoto;
+
 
     @Column(length = 256)
     private String coverPhoto;
@@ -81,10 +80,10 @@ public class User implements UserDetails {
     private Integer followingCount;
 
     @Column
-    private Boolean enabled; // Account enabled status
+    private Boolean enabled;
 
     @Column
-    private Boolean accountVerified = false; // Account verification status
+    private Boolean accountVerified = false;
 
     @Column(nullable = false)
     private Boolean emailVerified;
@@ -93,13 +92,13 @@ public class User implements UserDetails {
     private String phoneNumber;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date birthDate; // Store as LocalDate
+    private Date birthDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime joinDate; // Store as LocalDateTime
+    private LocalDateTime joinDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime dateLastModified; // Store as LocalDateTime
+    private LocalDateTime dateLastModified;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
@@ -129,8 +128,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "userS")
     private List<CarpoolingPreferences> carpoolingPreferences = new ArrayList<>();
 
-    @OneToMany(mappedBy = "usera")
-    private List<Inscription> inscriptions;
+
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;

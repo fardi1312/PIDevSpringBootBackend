@@ -2,14 +2,12 @@ package tn.esprit.pidevspringbootbackend.UserConfig.utilFiles;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
 @Component
 public class FileUploadUtil {
     public void saveNewFile(String uploadDir,
@@ -19,7 +17,6 @@ public class FileUploadUtil {
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
-
         try (InputStream inputStream = multipartFile.getInputStream()) {
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -27,7 +24,6 @@ public class FileUploadUtil {
             throw new IOException("Could not save file");
         }
     }
-
     public void updateFile(String uploadDir,
                            String oldFileName,
                            String newFileName,
@@ -43,7 +39,6 @@ public class FileUploadUtil {
             throw new IOException("Could not update file");
         }
     }
-
     public void deleteFile(String uploadDir, String fileName) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
         Path filePath = uploadPath.resolve(fileName);

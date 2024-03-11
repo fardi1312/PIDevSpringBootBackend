@@ -14,7 +14,5 @@ public class SignupDTO {
     private String firstName;
     private String lastName;
 
-
-
 }
 

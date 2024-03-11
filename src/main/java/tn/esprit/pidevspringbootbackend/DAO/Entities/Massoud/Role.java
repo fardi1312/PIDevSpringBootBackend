@@ -12,11 +12,9 @@ import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Massoud.RoleType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idRole;
-
     @Enumerated(EnumType.STRING)
     private RoleType type;
 
