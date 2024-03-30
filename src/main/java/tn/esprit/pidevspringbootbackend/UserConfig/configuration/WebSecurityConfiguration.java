@@ -32,20 +32,20 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authRequest -> {
             // Permit all requests for "/signup" and "/authenticate" endpoints
-            authRequest.requestMatchers("/signup", "/authenticate").permitAll();
+           // authRequest.requestMatchers("/signup", "/authenticate").permitAll();
             // All other requests require authentication
-            authRequest.anyRequest().authenticated();
+            authRequest.anyRequest().permitAll();
         });
-        // Disable CORS, CSRF, and headers (since we're using JWT for authentication)
+        http.oauth2Login(oauth2 ->
+                oauth2.successHandler((request, response, authentication) ->
+                                response.sendRedirect("/hello"))
+                        .permitAll()
+        );
+
         http.cors(AbstractHttpConfigurer::disable);
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.headers(AbstractHttpConfigurer::disable);
-        // Configure session management to be stateless (since we're using JWT)
-        http.sessionManagement(sessionManagement -> {
-            sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        });
-        // Add the JwtRequestFilter before the UsernamePasswordAuthenticationFilter
-        http.addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class);
+       http.csrf(AbstractHttpConfigurer::disable);
+      http.headers(AbstractHttpConfigurer::disable);
+ http.addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
     @Bean

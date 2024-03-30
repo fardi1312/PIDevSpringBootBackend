@@ -1,8 +1,6 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -65,4 +63,22 @@ public class EmailService implements IEmailService {
                 "cursor: pointer;\">Verify Email</button></a>";
         return "Please click the button below to verify your email address:<br>" + buttonHtml;
     }
+
+    @Override
+    @Async
+    public void sendResetPasswordEmail(String to, String newPassword) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
+            messageHelper.setTo(to);
+            messageHelper.setSubject("Password Reset Request");
+            messageHelper.setText("Your new password is: " + newPassword);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send password reset email", e);
+        }
+    }
+
+
+
 }

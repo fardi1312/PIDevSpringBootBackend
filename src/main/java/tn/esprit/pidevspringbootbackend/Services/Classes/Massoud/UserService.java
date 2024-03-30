@@ -1,22 +1,28 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.Massoud;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoPointCount;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateEmailDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
+import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IEmailService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 import tn.esprit.pidevspringbootbackend.UserConfig.exception.UserNotFoundException;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileNamingUtil;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.io.IOException;
+import java.util.Optional;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -34,6 +40,19 @@ public class UserService implements IUserService {
     private  RepoPointCount repoPointCount;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private IEmailService emailService;
+
+
+    @Override
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        String newPassword = RandomStringUtils.randomAlphanumeric(10);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        emailService.sendResetPasswordEmail(email, newPassword);
+    }
+
 
 
     @Override
@@ -145,13 +164,10 @@ public class UserService implements IUserService {
     }
     @Override
     public boolean verifyEmail(String email) {
-        // Find user by email verification token
         User user = userRepository.getUserByEmail(email);
         if (user == null) {
-            // User not found for the given token
             return false;
         }
-        // Verify email by updating user's email verification status
         user.setEmailVerified(true);
         userRepository.save(user);
         return true;
