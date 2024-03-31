@@ -1,15 +1,17 @@
 package tn.esprit.pidevspringbootbackend.RestControllers.SM;
-
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingPreferences;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingRequest;
-
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.PointCount;
+
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.SM.CarpoolingType;
+import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.SM.IServiceCarpooling;
 
 import java.util.Date;
@@ -20,56 +22,66 @@ import java.util.List;
 @CrossOrigin("http://localhost:4200")
 @RequiredArgsConstructor
 public class CarpoolingController {
-@Autowired
-    IServiceCarpooling iServiceCarpooling ;
+    @Autowired
+    private  IServiceCarpooling iServiceCarpooling;
+    @Autowired
+    private  IUserService userService;
 
-@PostMapping("/addCO/{id}")
-    public CarpoolingOffer addCarpoolingOffer(@RequestBody CarpoolingOffer c , @PathVariable (value = "id") Long iid){
-Long s= 1L;
-    return iServiceCarpooling.addCarpoolingOffer( s,c);
-}
-@PostMapping("/addreq/{id}/{ido}/{nba}/{nbr}")
-    public CarpoolingRequest addCarpoolingRequest (@PathVariable( value ="nba" ) int nba,@PathVariable( value ="nbr" ) int nbr,@RequestBody CarpoolingRequest c, @PathVariable (value = "id") Long idu,@PathVariable( value ="ido" ) Long ido){
+// http://localhost:8083/sui/addCO
 
-    return iServiceCarpooling.addCarpoolingRequest( idu,ido,c,nba,nbr);
+    @PostMapping("/addCO")
+    public CarpoolingOffer addCarpoolingOffer(@RequestBody CarpoolingOffer c){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        return iServiceCarpooling.addCarpoolingOffer(user.getIdUser(), c);
+    }
 
-}
+    @PostMapping("/addreq/{ido}/{nba}/{nbr}")
+    public CarpoolingRequest addCarpoolingRequest (@PathVariable( value ="nba" ) int nba, @PathVariable( value ="nbr" ) int nbr, @RequestBody CarpoolingRequest c, @PathVariable( value ="ido" ) Long ido){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        return iServiceCarpooling.addCarpoolingRequest(user.getIdUser(), ido, c, nba, nbr);
+    }
 
-@PostMapping("/addPref/{id}")
-    public CarpoolingPreferences addCarpoolingPereferences (@RequestBody CarpoolingPreferences c , @PathVariable (value = "id") Long idu){
-    return iServiceCarpooling.addCarpoolingPereferences(idu, c);
-}
+    @PostMapping("/addPref")
+    public CarpoolingPreferences addCarpoolingPereferences (@RequestBody CarpoolingPreferences c){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        return iServiceCarpooling.addCarpoolingPereferences(user.getIdUser(), c);
+    }
 
+    @PostMapping("/updateOff/{ido}")
+    public CarpoolingOffer updateCarpoolingOffert (@RequestBody CarpoolingOffer co , @PathVariable (value ="ido") Long ido){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        return iServiceCarpooling.updateCarpoolingOffert(user.getIdUser(), co);
+    }
 
-
-
-@PostMapping("/updateOff/{ido}")
-public  CarpoolingOffer updateCarpoolingOffert (@RequestBody CarpoolingOffer co , @PathVariable (value ="ido") Long ido){
-    return iServiceCarpooling.updateCarpoolingOffert(ido,co);
-}
     @PostMapping("/updateReq/{idr}")
-    public  CarpoolingRequest updateCarpoolingRequest (@RequestBody CarpoolingRequest cr , @PathVariable (value ="idr") Long idr){
-        return iServiceCarpooling.updateCarpoolingrequest(idr,cr);
+    public CarpoolingRequest updateCarpoolingRequest (@RequestBody CarpoolingRequest cr , @PathVariable (value ="idr") Long idr){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        return iServiceCarpooling.updateCarpoolingrequest(user.getIdUser(), cr);
     }
 
     @PostMapping("/updatepref/{idp}")
-    public  CarpoolingPreferences updateCarpoolingPreferences (@RequestBody CarpoolingPreferences cr , @PathVariable (value ="idp") Long idr){
-        return iServiceCarpooling.updateCarpoolingPreferences(idr,cr);
+    public CarpoolingPreferences updateCarpoolingPreferences (@RequestBody CarpoolingPreferences cr , @PathVariable (value ="idp") Long idr){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        return iServiceCarpooling.updateCarpoolingPreferences(user.getIdUser(), cr);
     }
 
-
-    @PostMapping("/DEL/{id}")
-    public Void deleteCarpoolingPereferences ( @PathVariable (value = "id") Long idu){
-        iServiceCarpooling.deleteCarpoolingOffer(idu);
-
-
+    @PostMapping("/DEL")
+    public Void deleteCarpoolingPereferences (){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        iServiceCarpooling.deleteCarpoolingOffer(user.getIdUser());
         return null;
     }
 
-
     @GetMapping("/getall")
     public List<CarpoolingOffer> getll(){
-return     iServiceCarpooling.getAllActiveOffers();
+        return iServiceCarpooling.getAllActiveOffers();
     }
 
     @GetMapping("/search/{location}/{type}/{departureDate}/{returnDate}")
@@ -82,14 +94,18 @@ return     iServiceCarpooling.getAllActiveOffers();
         return iServiceCarpooling.searchCarpoolingOffer(location, type, departureDate, returnDate);
     }
 
-    @GetMapping("/getMatching/{id}")
-    public List<CarpoolingOffer> findMatchingOffers(@PathVariable (value = "id") Long id ){
-
-        return     iServiceCarpooling.findMatchingOffers(id);
+    @GetMapping("/getMatching")
+    public List<CarpoolingOffer> findMatchingOffers() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        return iServiceCarpooling.findMatchingOffers(user.getIdUser());
     }
-    @PostMapping("/updatePoint/{idu}/{pcn}")
-    public PointCount updatePoint(@PathVariable("idu") Long idu, @PathVariable("pcn") Long pcn) {
-        return iServiceCarpooling.updatePoint(idu, pcn);
+
+    @PostMapping("/updatePoint/{pcn}")
+    public PointCount updatePoint(@PathVariable("pcn") Long pcn) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        return iServiceCarpooling.updatePoint(user.getIdUser(), pcn);
     }
 
     @GetMapping("/search-carpooling-offers/{date}/{price}")
@@ -99,8 +115,4 @@ return     iServiceCarpooling.getAllActiveOffers();
     ) {
         return iServiceCarpooling.findCarpoolingOffersByDateAndPrice(date, price);
     }
-
-
-
 }
-
