@@ -54,7 +54,7 @@ public class CarpoolingController {
     public CarpoolingOffer updateCarpoolingOffert (@RequestBody CarpoolingOffer co , @PathVariable (value ="ido") Long ido){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUserByEmail(authentication.getName());
-        return iServiceCarpooling.updateCarpoolingOffert(user.getIdUser(), co);
+        return iServiceCarpooling.updateCarpoolingOffert(ido, co);
     }
 
     @PostMapping("/updateReq/{idr}")
