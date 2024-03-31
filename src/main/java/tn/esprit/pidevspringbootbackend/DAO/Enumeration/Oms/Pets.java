@@ -5,6 +5,7 @@ public enum Pets {
     Dogs,
     Hamsters,
     Birds,
+    No
 
 }
 

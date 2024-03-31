@@ -4,9 +4,8 @@ public enum Interest {
     Sport,
     Music,
     Travel,
-    Reading
-
-
+    Reading,
+    No
 }
 
 

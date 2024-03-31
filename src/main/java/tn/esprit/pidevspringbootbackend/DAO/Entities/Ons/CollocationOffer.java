@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
-import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.FurnitureCollocation;
-import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Gender;
+import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +23,16 @@ public class CollocationOffer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long IdCollocationOffer ;
-    private String location ;
+    private String    locationLx;
+    private String       locationLy;
+
+
+
+    private String governorate;
+    private String country;
+    private String city;
+    private String streetAddress;
+
     private int houseType ;
     @OneToMany(mappedBy ="collocationOffer",cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -33,15 +42,21 @@ public class CollocationOffer {
     private Date dateRent ;
     private Date dateOffer ;
     private Gender gender ;
-    @ElementCollection
-    private List<String> imageCollocation = new ArrayList<>();
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB")
+    private String imageCollocation ;
     private float price ;
+    private  boolean saved;
     @Enumerated(EnumType.STRING)
     private FurnitureCollocation furnitureCollocation ;
     @Lob
     private String descriptionCollocation ;
-  //
-  //  private int collocationRating ;
+    private Boolean smokingAllowed;
+    @Enumerated(EnumType.STRING)
+    private Pets petsAllowed ;
+    @Enumerated(EnumType.STRING)
+    private Interest interest;
+
     @ManyToOne
     @JsonIgnore
 
@@ -56,5 +71,6 @@ public class CollocationOffer {
 
     private  List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
+    private int matchPercentage;
 
 }

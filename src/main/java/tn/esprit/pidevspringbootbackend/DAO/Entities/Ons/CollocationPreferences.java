@@ -1,13 +1,11 @@
 package tn.esprit.pidevspringbootbackend.DAO.Entities.Ons;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
-import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Gender;
-import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Interest;
-import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Pets;
-import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.RoomType;
+import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,25 +19,29 @@ import java.util.List;
 public class CollocationPreferences {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idCollocationPreferences ;
-    @ElementCollection(targetClass = Pets.class, fetch = FetchType.EAGER)
+    private long idCollocationPreferences;
     @Enumerated(EnumType.STRING)
-    private List<Pets> pets = new ArrayList<>();
-    private Boolean smoking ;
-    private float budget ;
+    private Pets pets;
+    private Boolean smoking;
+    private float budget;
     @Enumerated(EnumType.STRING)
 
-    private Gender gender ;
+    private Gender gender;
     @Enumerated(EnumType.STRING)
+    @Column(length = 20) // Set the length to a value that can accommodate all enum values
 
     private Interest interest;
+
     @Enumerated(EnumType.STRING)
-
-    private RoomType roomType ;
-    private int HouseType ;
-    private String location ;
+    private RoomType roomType;
+    private int HouseType;
+    private String location;
+    @Enumerated(EnumType.STRING)
+    private FurnitureCollocation furnitureCollocation ;
     @OneToOne
-    private User user ;
+    @JsonIgnore
 
-
+    private User user;
 }
+
+

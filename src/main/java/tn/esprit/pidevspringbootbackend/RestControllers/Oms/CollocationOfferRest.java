@@ -1,13 +1,15 @@
 package tn.esprit.pidevspringbootbackend.RestControllers.Oms;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
-import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationRequestService;
+import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.MatchingService;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +20,8 @@ import java.util.Optional;
 public class CollocationOfferRest {
     @Autowired
     private  CollocationOfferServices collocationOfferServices;
-
+    @Autowired
+    private MatchingService matchingService;
 
     @GetMapping
     public ResponseEntity<List<CollocationOffer>> getAllCollocationOffers() {
@@ -33,27 +36,14 @@ public class CollocationOfferRest {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping
-    public ResponseEntity<CollocationOffer> createCollocationOffer(@RequestBody CollocationOffer collocationOffer) {
-        CollocationOffer createdCollocationOffer = collocationOfferServices.saveCollocationOffer(collocationOffer);
-        return new ResponseEntity<>(createdCollocationOffer, HttpStatus.CREATED);
-    }
+
 
     @PutMapping("/{id}")
-    public ResponseEntity<CollocationOffer> updateCollocationOffer(
-            @PathVariable long id,
-            @RequestBody CollocationOffer updatedCollocationOffer
-    ) {
-        Optional<CollocationOffer> existingCollocationOffer = collocationOfferServices.getCollocationOfferById(id);
-
-        if (existingCollocationOffer.isPresent()) {
-            updatedCollocationOffer.setIdCollocationOffer(id);
-            CollocationOffer updated = collocationOfferServices.saveCollocationOffer(updatedCollocationOffer);
-            return new ResponseEntity<>(updated, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<CollocationOffer> updateCollocationOffer(@PathVariable long id, @RequestBody CollocationOffer updatedCollocationOffer) {
+        CollocationOffer updatedOffer = collocationOfferServices.updateCollocationOffer(id, updatedCollocationOffer);
+        return ResponseEntity.ok(updatedOffer);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCollocationOffer(@PathVariable long id) {
@@ -81,15 +71,44 @@ public class CollocationOfferRest {
     }
 
     @PostMapping("/offers/create")
-    public ResponseEntity<CollocationOffer> createCollocationOfferAndAssociateUser(
+    public ResponseEntity<CollocationOffer> createCollocationOffer(
             @RequestBody CollocationOffer collocationOffer,
             @RequestParam long userId) {
 
-        CollocationOffer createdOffer = collocationOfferServices.saveCollocationOfferAndAssociateUser(collocationOffer, userId);
+        CollocationOffer createdOffer = collocationOfferServices.saveCollocationOffer(collocationOffer, userId);
 
         return new ResponseEntity<>(createdOffer, HttpStatus.CREATED);
     }
+     @PostMapping("/toggle-saved-status/{offerId}")
+    public ResponseEntity<Void> toggleOfferSavedStatus(@PathVariable Long offerId) {
+         collocationOfferServices.toggleOfferSavedStatus(offerId);
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("/search")
+    public ResponseEntity<List<CollocationOffer>> search(
+            @RequestParam(required = false) String governorate,
+            @RequestParam(required = false) Integer houseType,
+            @RequestParam(required = false) Integer availablePlaces,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date dateRent
+    ) {
+        List<CollocationOffer> offers = collocationOfferServices.search(governorate, houseType, availablePlaces, dateRent);
+        return ResponseEntity.ok(offers);
+    }
+    @GetMapping("getCollocationImage/{id}")
+    public String getCompetitionImage(@PathVariable("id") int idCollocation){
+        return collocationOfferServices.getImageUrlForCompetitionByID(idCollocation);
+    }
+    @PostMapping("uploadCollocationImage/image/{id}")
+    public CollocationOffer updateCompetitionImage(@PathVariable("id")int idCollocation, @RequestParam("image") MultipartFile image){
+        return collocationOfferServices.updateCollocationImage(idCollocation,image);
+    }
 
+
+    @GetMapping("/matchuser/{userId}")
+    public ResponseEntity<List<CollocationOffer>> getMatchingOffersForUser(@PathVariable Long userId) {
+        List<CollocationOffer> matchingOffers = matchingService.getMatchingOffersForUser(userId);
+        return ResponseEntity.ok(matchingOffers);
+    }
 }
 
 
