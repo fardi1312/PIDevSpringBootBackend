@@ -24,20 +24,20 @@ public class CarpoolingPreferences {
 
     private long idCarpoolingPreferences ;
 
-    private float budget ;
+    private Float budget ;
     @Enumerated(EnumType.STRING)
     private Gender gender ;
     @Enumerated(EnumType.STRING)
     private CarpoolingType carpoolingType ;
-    private int nbPlaces ;
+    private Integer nbPlaces ;
     private String location ;
     private String Description;
-    private String radioon;
+    private Boolean radioon;
     private Boolean climatise ;
     private Boolean chauffage ;
     private Boolean smoking ;
     @JsonIgnore
-    @ManyToOne
+    @OneToOne
     private User userS ;
 
 

@@ -125,8 +125,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "userR")
     private List<CarpoolingRequest> carpoolingRequests = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userS")
-    private List<CarpoolingPreferences> carpoolingPreferences = new ArrayList<>();
+    @OneToOne
+    CarpoolingPreferences carpoolingPreferences;
 
 
 
