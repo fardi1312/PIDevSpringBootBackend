@@ -10,6 +10,7 @@ import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationPreferen
 
 @RestController
 @RequestMapping("/api/collocationPreferences")
+
 public class CollocationPreferencesRest {
 
     @Autowired

@@ -32,6 +32,7 @@ public class RoomDetailsRest {
 
     @PostMapping
     public ResponseEntity<RoomDetails> createRoomDetails(@RequestBody RoomDetails roomDetails,@PathVariable long idOffer) {
+
         RoomDetails createdRoomDetails = roomDetailsService.createRoomDetailsForOffer(idOffer, roomDetails);
         return new ResponseEntity<>(createdRoomDetails, HttpStatus.CREATED);
     }

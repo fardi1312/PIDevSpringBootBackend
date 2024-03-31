@@ -27,21 +27,21 @@ public class CollocationOffer {
     private int houseType ;
     @OneToMany(mappedBy ="collocationOffer",cascade = CascadeType.ALL)
     @JsonManagedReference
-
     private List<RoomDetails> roomDetailsList;
     private int availablePlaces ;
     private Date dateRent ;
     private Date dateOffer ;
     private Gender gender ;
-    @ElementCollection
-    private List<String> imageCollocation = new ArrayList<>();
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB")
+    private String imageCollocation ;
     private float price ;
     @Enumerated(EnumType.STRING)
     private FurnitureCollocation furnitureCollocation ;
     @Lob
     private String descriptionCollocation ;
-  //
-  //  private int collocationRating ;
+    //
+    //  private int collocationRating ;
     @ManyToOne
     @JsonIgnore
 
