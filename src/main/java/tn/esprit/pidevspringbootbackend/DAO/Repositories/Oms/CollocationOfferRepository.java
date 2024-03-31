@@ -1,6 +1,7 @@
 package tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationPreferences;
 
@@ -9,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface CollocationOfferRepository extends JpaRepository<CollocationOffer,Long>  {
+
     List<CollocationOffer> findByGovernorateIgnoreCaseAndHouseTypeAndAvailablePlacesAndDateRent( String governorate, Integer houseType, Integer availablePlaces, Date dateRent);
 
     List<CollocationOffer> findByGovernorateIgnoreCaseAndHouseTypeAndAvailablePlaces(
@@ -21,6 +23,7 @@ public interface CollocationOfferRepository extends JpaRepository<CollocationOff
 
 
 
+    List<CollocationOffer> findByUser(User user);
 
 
     List<CollocationOffer> findByGovernorateIgnoreCaseAndHouseType(String governorate, Integer houseType);
@@ -38,6 +41,5 @@ public interface CollocationOfferRepository extends JpaRepository<CollocationOff
     List<CollocationOffer> findByAvailablePlaces(Integer availablePlaces);
 
     List<CollocationPreferences> findByUserIdUser(Long userId);
-
 
 }

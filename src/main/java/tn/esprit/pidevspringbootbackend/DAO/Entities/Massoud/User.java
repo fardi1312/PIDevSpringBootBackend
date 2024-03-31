@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Amira.Inscription;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationFeedback;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
@@ -14,9 +16,10 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingPreferences;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingRequest;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.PointCount;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -26,11 +29,13 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUser;
+
+
 
     @Column(length = 128, nullable = false, unique = true)
     private String username;
@@ -72,22 +77,23 @@ public class User {
     @Column(length = 256)
     private String coverPhoto;
 
-
-
     private Integer followerCount;
     private Integer followingCount;
 
-    @Column(nullable = false)
+    @Column
     private Boolean enabled; // Account enabled status
 
-    @Column(nullable = false)
-    private Boolean accountVerified; // Account verification status
+    @Column
+    private Boolean accountVerified = false; // Account verification status
 
     @Column(nullable = false)
-    private Boolean emailVerified; // Email verification status
+    private Boolean emailVerified;
+
+    @Column(length = 20)
+    private String phoneNumber;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate birthDate; // Store as LocalDate
+    private Date birthDate; // Store as LocalDate
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime joinDate; // Store as LocalDateTime
@@ -95,29 +101,63 @@ public class User {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime dateLastModified; // Store as LocalDateTime
 
-
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
-    @OneToMany (mappedBy = "user")
-    private List<CollocationOffer> collocationOffers = new ArrayList<>() ;
+
+    @OneToMany(mappedBy = "user")
+    private List<CollocationOffer> collocationOffers = new ArrayList<>();
+
     @OneToMany
-    private  List<CollocationRequest> collocationRequests = new ArrayList<>() ;
+    private List<CollocationRequest> collocationRequests = new ArrayList<>();
+
     @OneToOne(mappedBy = "user")
-    private CollocationPreferences collocationPreferences;
-    @ManyToMany (mappedBy = "users")
+    private CollocationPreferences collocationPreferences ;
+
+    @ManyToMany(mappedBy = "users")
     private List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
-
-
     @OneToOne
-    PointCount pointCount ;
+    PointCount pointCount;
+
     @OneToMany(mappedBy = "userO")
-    private List<CarpoolingOffer> CarpoolingOffers  = new ArrayList<>();
+    private List<CarpoolingOffer> carpoolingOffers = new ArrayList<>();
+
     @OneToMany(mappedBy = "userR")
-    private List<CarpoolingRequest> CarpoolingRequests = new ArrayList<>();
+    private List<CarpoolingRequest> carpoolingRequests = new ArrayList<>();
+
     @OneToMany(mappedBy = "userS")
     private List<CarpoolingPreferences> carpoolingPreferences = new ArrayList<>();
+
     @OneToMany(mappedBy = "usera")
     private List<Inscription> inscriptions;
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 }

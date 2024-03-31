@@ -4,7 +4,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.MatchingService;
@@ -28,6 +27,18 @@ public class CollocationOfferRest {
         List<CollocationOffer> collocationOffers = collocationOfferServices.getAllCollocationOffers();
         return new ResponseEntity<>(collocationOffers, HttpStatus.OK);
     }
+    @PostMapping("/send-mail/{offerId}/{requestId}")
+    public ResponseEntity<String> sendMail(
+            @PathVariable long offerId,
+            @PathVariable long requestId) {
+
+        boolean success = collocationOfferServices.SendMail(offerId, requestId);
+        if (success) {
+            return new ResponseEntity<>("Email sent successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<CollocationOffer> getCollocationOfferById(@PathVariable long id) {
@@ -36,14 +47,17 @@ public class CollocationOfferRest {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-
+    @PostMapping
+    public ResponseEntity<CollocationOffer> createCollocationOffer(@RequestBody CollocationOffer collocationOffer) {
+        CollocationOffer createdCollocationOffer = collocationOfferServices.saveCollocationOffer(collocationOffer);
+        return new ResponseEntity<>(createdCollocationOffer, HttpStatus.CREATED);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<CollocationOffer> updateCollocationOffer(@PathVariable long id, @RequestBody CollocationOffer updatedCollocationOffer) {
         CollocationOffer updatedOffer = collocationOfferServices.updateCollocationOffer(id, updatedCollocationOffer);
         return ResponseEntity.ok(updatedOffer);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCollocationOffer(@PathVariable long id) {
@@ -75,7 +89,7 @@ public class CollocationOfferRest {
             @RequestBody CollocationOffer collocationOffer,
             @RequestParam long userId) {
 
-        CollocationOffer createdOffer = collocationOfferServices.saveCollocationOffer(collocationOffer, userId);
+        CollocationOffer createdOffer = collocationOfferServices.saveCollocationOfferAndAssociateUser(collocationOffer, userId);
 
         return new ResponseEntity<>(createdOffer, HttpStatus.CREATED);
     }

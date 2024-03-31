@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/collocation-feedback")
-
+@CrossOrigin
 public class CollocationFeedbackRest {
     @Autowired
     private CollocationFeedbackService collocationFeedbackService;
@@ -28,9 +28,9 @@ public class CollocationFeedbackRest {
         return new ResponseEntity<>(collocationFeedback, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<CollocationFeedback> createCollocationFeedback(@RequestBody CollocationFeedback collocationFeedback) {
-        CollocationFeedback createdCollocationFeedback = collocationFeedbackService.createCollocationFeedback(collocationFeedback);
+    @PostMapping("/{id}")
+    public ResponseEntity<CollocationFeedback> createCollocationFeedback(@RequestBody CollocationFeedback collocationFeedback,@PathVariable long id) {
+        CollocationFeedback createdCollocationFeedback = collocationFeedbackService.createCollocationFeedback(collocationFeedback,id);
         return new ResponseEntity<>(createdCollocationFeedback, HttpStatus.CREATED);
     }
 

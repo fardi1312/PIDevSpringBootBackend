@@ -96,7 +96,7 @@ public class CollocationOfferServices {
        }
     }
     //add offer and Associate to a certain user
-    public CollocationOffer saveCollocationOffer(CollocationOffer collocationOffer, long userId) {
+    public CollocationOffer saveCollocationOfferAndAssociateUser(CollocationOffer collocationOffer, long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId)) ;
 

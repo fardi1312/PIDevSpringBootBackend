@@ -55,5 +55,29 @@ public class CollocationPreferencesRest {
         return ResponseEntity.ok(preferences);
     }
 
+    @GetMapping("/user/{userId}/{collocationPreferencesId}")
+    public ResponseEntity<CollocationPreferences> getCollocationPreferencesById(@PathVariable long userId) {
+        CollocationPreferences preferences = collocationPreferencesService.getCollocationPreferencesByIdUser(userId);
+        return new ResponseEntity<>(preferences, HttpStatus.OK);
+    }
+
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<CollocationPreferences> createCollocationPreferences(@PathVariable long userId, @RequestBody CollocationPreferences preferences) {
+        CollocationPreferences createdPreferences = collocationPreferencesService.createCollocationPreferences(userId, preferences);
+        return new ResponseEntity<>(createdPreferences, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/user/{userId}/{collocationPreferencesId}")
+    public ResponseEntity<CollocationPreferences> updateCollocationPreferences(@PathVariable long userId, @PathVariable long collocationPreferencesId, @RequestBody CollocationPreferences updatedPreferences) {
+        CollocationPreferences updatedPreferencesResult = collocationPreferencesService.updateCollocationPreferences(userId, collocationPreferencesId, updatedPreferences);
+        return new ResponseEntity<>(updatedPreferencesResult, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/user/{userId}/{collocationPreferencesId}")
+    public ResponseEntity<Void> deleteCollocationPreferences(@PathVariable long userId, @PathVariable long collocationPreferencesId) {
+        collocationPreferencesService.deleteCollocationPreferences(userId, collocationPreferencesId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 
 }

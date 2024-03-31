@@ -13,4 +13,8 @@ public class SignupDTO {
     private String passwordRepeat;
     private String firstName;
     private String lastName;
+
+
+
 }
+

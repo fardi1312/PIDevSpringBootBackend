@@ -30,6 +30,13 @@ public class RoomDetailsRest {
         return new ResponseEntity<>(roomDetails, HttpStatus.OK);
     }
 
+    @PostMapping
+    public ResponseEntity<RoomDetails> createRoomDetails(@RequestBody RoomDetails roomDetails,@PathVariable long idOffer) {
+
+        RoomDetails createdRoomDetails = roomDetailsService.createRoomDetailsForOffer(idOffer, roomDetails);
+        return new ResponseEntity<>(createdRoomDetails, HttpStatus.CREATED);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<RoomDetails> updateRoomDetails(@PathVariable long id, @RequestBody RoomDetails updatedRoomDetails) {
         RoomDetails roomDetails = roomDetailsService.updateRoomDetails(id, updatedRoomDetails);

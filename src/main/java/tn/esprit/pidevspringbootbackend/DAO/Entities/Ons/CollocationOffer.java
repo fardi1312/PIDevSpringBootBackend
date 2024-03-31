@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
-import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.*;
+import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.FurnitureCollocation;
+import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Gender;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +46,6 @@ public class CollocationOffer {
     @Column(columnDefinition = "MEDIUMBLOB")
     private String imageCollocation ;
     private float price ;
-    private  boolean saved;
     @Enumerated(EnumType.STRING)
     private FurnitureCollocation furnitureCollocation ;
     @Lob
