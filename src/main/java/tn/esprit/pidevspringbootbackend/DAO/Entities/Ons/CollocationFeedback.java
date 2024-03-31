@@ -24,7 +24,7 @@ public class CollocationFeedback {
     private int rating;
     @ManyToOne
     private CollocationOffer collocationOffer;
-    @ManyToMany
-    private List<User> users = new ArrayList<>();
+    @ManyToOne
+    private User user ;
 
 }

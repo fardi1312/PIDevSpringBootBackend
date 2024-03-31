@@ -1,73 +1,63 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.Oms;
-
-
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationFeedback;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
+import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationFeedbackRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationOfferRepository;
 
 import java.util.List;
 
 @Service
-
 public class CollocationFeedbackService {
     @Autowired
     private CollocationFeedbackRepository collocationFeedbackRepository;
     @Autowired
-    private CollocationOfferRepository collocationOfferRepository ;
+    private CollocationOfferRepository collocationOfferRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    public List<CollocationFeedback> getAllCollocationFeedback() {
-        return collocationFeedbackRepository.findAll();
-    }
+    // Method to create a new collocation feedback associated with a specific user
+    public CollocationFeedback createCollocationFeedback(CollocationFeedback collocationFeedback, long userId, long offerId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-    public CollocationFeedback getCollocationFeedbackById(long id) {
-        return collocationFeedbackRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("CollocationFeedback not found with id: " + id));
-    }
+        CollocationOffer collocationOffer = collocationOfferRepository.findById(offerId)
+                .orElseThrow(() -> new EntityNotFoundException("CollocationOffer not found with id: " + offerId));
 
-    public CollocationFeedback createCollocationFeedback(CollocationFeedback collocationFeedback, long id) {
-        System.out.println("adding ... ");
-        CollocationOffer collocationOffer = collocationOfferRepository.getReferenceById(id);
-        System.out.println("adding ... ");
-
-
-        // Initialize lazy-loaded associations
-
-        // Associate the feedback with the offer
+        collocationFeedback.setUser(user);
         collocationFeedback.setCollocationOffer(collocationOffer);
-        System.out.println("adding ... ");
 
-
-        // Add the feedback to the offer's feedback list
         collocationOffer.getCollocationFeedbacks().add(collocationFeedback);
-
-
-        // Save the updated offer with the new feedback
         collocationOfferRepository.save(collocationOffer);
 
-
-        // Save the feedback
         return collocationFeedbackRepository.save(collocationFeedback);
     }
 
-    public CollocationFeedback updateCollocationFeedback(long id, CollocationFeedback updatedCollocationFeedback) {
-        CollocationFeedback existingCollocationFeedback = getCollocationFeedbackById(id);
+    // Method to update an existing collocation feedback associated with a specific user
+    public CollocationFeedback updateCollocationFeedback(long id, CollocationFeedback updatedCollocationFeedback, long userId) {
+        CollocationFeedback existingCollocationFeedback = collocationFeedbackRepository.findById(id).get();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(("User not found with id: " + userId)));
+
         existingCollocationFeedback.setFeedbackDate(updatedCollocationFeedback.getFeedbackDate());
         existingCollocationFeedback.setFeedbackDescription(updatedCollocationFeedback.getFeedbackDescription());
         existingCollocationFeedback.setRating(updatedCollocationFeedback.getRating());
         existingCollocationFeedback.setCollocationOffer(updatedCollocationFeedback.getCollocationOffer());
-        existingCollocationFeedback.setUsers(updatedCollocationFeedback.getUsers());
+        existingCollocationFeedback.setUser(user);
 
         return collocationFeedbackRepository.save(existingCollocationFeedback);
     }
 
+    // Method to delete a collocation feedback associated with a specific user
     public void deleteCollocationFeedback(long id) {
         collocationFeedbackRepository.deleteById(id);
     }
-
+    public List<CollocationFeedback> getAllCollocationFeedback() {
+        return collocationFeedbackRepository.findAll();
+    }
 
 }

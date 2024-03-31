@@ -3,13 +3,17 @@ package tn.esprit.pidevspringbootbackend.RestControllers.Oms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.RoomDetails;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.RoomDetailsRepository;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationRequestService;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.RoomDetailsService;
+import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +27,8 @@ public class CollocationRequestRest {
 private CollocationRequestService collocationRequestService;
 @Autowired
 private RoomDetailsRepository roomDetailsRepository ;
+    @Autowired
+    private IUserService userService;
 
     @GetMapping
     public ResponseEntity<List<CollocationRequest>> getAllCollocationRequests() {
@@ -41,7 +47,9 @@ private RoomDetailsRepository roomDetailsRepository ;
             @RequestBody CollocationRequest request,
             @PathVariable long userId,
             @PathVariable long id) {
-        CollocationRequest collocationRequest = collocationRequestService.saveCollocationRequest(request, id, userId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        CollocationRequest collocationRequest = collocationRequestService.saveCollocationRequest(request, id, user.getIdUser());
         if (collocationRequest != null) {
             return ResponseEntity.ok(collocationRequest);
         } else {

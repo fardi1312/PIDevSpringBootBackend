@@ -40,7 +40,6 @@ public class CollocationPreferences {
     private FurnitureCollocation furnitureCollocation ;
     @OneToOne
     @JsonIgnore
-
     private User user;
 }
 

@@ -3,10 +3,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.MatchingService;
+import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 
 import java.util.Date;
 import java.util.List;
@@ -21,6 +25,8 @@ public class CollocationOfferRest {
     private  CollocationOfferServices collocationOfferServices;
     @Autowired
     private MatchingService matchingService;
+    @Autowired
+    private IUserService userService;
 
     @GetMapping
     public ResponseEntity<List<CollocationOffer>> getAllCollocationOffers() {
@@ -47,11 +53,7 @@ public class CollocationOfferRest {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping
-    public ResponseEntity<CollocationOffer> createCollocationOffer(@RequestBody CollocationOffer collocationOffer) {
-        CollocationOffer createdCollocationOffer = collocationOfferServices.saveCollocationOffer(collocationOffer);
-        return new ResponseEntity<>(createdCollocationOffer, HttpStatus.CREATED);
-    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<CollocationOffer> updateCollocationOffer(@PathVariable long id, @RequestBody CollocationOffer updatedCollocationOffer) {
@@ -88,16 +90,20 @@ public class CollocationOfferRest {
     public ResponseEntity<CollocationOffer> createCollocationOffer(
             @RequestBody CollocationOffer collocationOffer,
             @RequestParam long userId) {
-
-        CollocationOffer createdOffer = collocationOfferServices.saveCollocationOfferAndAssociateUser(collocationOffer, userId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        CollocationOffer createdOffer = collocationOfferServices.saveCollocationOfferAndAssociateUser(collocationOffer, user.getIdUser());
 
         return new ResponseEntity<>(createdOffer, HttpStatus.CREATED);
     }
-     @PostMapping("/toggle-saved-status/{offerId}")
-    public ResponseEntity<Void> toggleOfferSavedStatus(@PathVariable Long offerId) {
-         collocationOfferServices.toggleOfferSavedStatus(offerId);
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/toggle-saved-status/{offerId}")
+//    public ResponseEntity<Void> toggleOfferSavedStatus(@PathVariable Long offerId, @RequestParam Long userId) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        User user = userService.getUserByEmail(authentication.getName());
+//        collocationOfferServices.toggleOfferSavedStatus(offerId, user.getIdUser());
+//        return ResponseEntity.ok().build();
+//    }
+
     @GetMapping("/search")
     public ResponseEntity<List<CollocationOffer>> search(
             @RequestParam(required = false) String governorate,
@@ -112,15 +118,13 @@ public class CollocationOfferRest {
     public String getCompetitionImage(@PathVariable("id") int idCollocation){
         return collocationOfferServices.getImageUrlForCompetitionByID(idCollocation);
     }
-    @PostMapping("uploadCollocationImage/image/{id}")
-    public CollocationOffer updateCompetitionImage(@PathVariable("id")int idCollocation, @RequestParam("image") MultipartFile image){
-        return collocationOfferServices.updateCollocationImage(idCollocation,image);
-    }
 
 
     @GetMapping("/matchuser/{userId}")
     public ResponseEntity<List<CollocationOffer>> getMatchingOffersForUser(@PathVariable Long userId) {
-        List<CollocationOffer> matchingOffers = matchingService.getMatchingOffersForUser(userId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        List<CollocationOffer> matchingOffers = matchingService.getMatchingOffersForUser(user.getIdUser());
         return ResponseEntity.ok(matchingOffers);
     }
 }
