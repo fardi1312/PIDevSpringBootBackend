@@ -30,7 +30,7 @@ public class CalendarEventService {
     private QrCodeServices qrCodeServices ;
 
     public List<calendarEvent> getAllCalendarEventsByUser(long userId) {
-        User user = userService.findByIdUser(userId);
+        User user = userService.findById(userId).get();
         if (user != null) {
             return eventRepository.findByUsers(user);
         }
@@ -38,7 +38,7 @@ public class CalendarEventService {
     }
 
     public calendarEvent getCalendarEventByIdAndUser(long id, long userId) {
-        User user = userService.findByIdUser(userId);
+        User user = userService.findById(userId).get();
         if (user != null) {
             Optional<calendarEvent> optionalEvent = eventRepository.findByIdAndUsers(id, user);
             return optionalEvent.orElse(null);

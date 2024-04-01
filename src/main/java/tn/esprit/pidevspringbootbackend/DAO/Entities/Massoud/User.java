@@ -110,10 +110,10 @@ public class User implements UserDetails {
     @OneToMany
     private List<CollocationRequest> collocationRequests = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    private List<CollocationPreferences> collocationPreferences = new ArrayList<>();
+    @OneToOne
+    private CollocationPreferences collocationPreferences ;
 
-    @ManyToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "user")
     private List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
     @OneToOne

@@ -34,8 +34,6 @@ public class CollocationOfferServices {
     @Autowired
     private eventRepository calendarEventRepository;
     @Autowired
-    private EmailService notificationService ;
-    @Autowired
     NameFile fileNamingUtil;
     FileUtil utils;
 
@@ -229,7 +227,6 @@ public class CollocationOfferServices {
     public boolean SendMail(long offerId,long requestId) {
         CollocationRequest collocationRequest = collocationRequestRepository.findById(requestId).get();
         CollocationOffer collocationOffer = collocationOfferRepository.findById(offerId).get();
-        notificationService.notifyRequesterOfApproval(collocationRequest.getUser(), collocationOffer);
         return true ;
 
     }
