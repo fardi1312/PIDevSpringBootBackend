@@ -1,31 +1,54 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.Oms;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationPreferences;
+import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationPreferencesRepository;
 
 import java.util.List;
 
 @Service
 public class CollocationPreferencesService {
+
     @Autowired
-    CollocationPreferencesRepository collocationPreferencesRepository ;
+    private CollocationPreferencesRepository collocationPreferencesRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+
+    public CollocationPreferences saveCollocationPreferences(CollocationPreferences preferences, long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        preferences.setUser(user);
+        return collocationPreferencesRepository.save(preferences);
+    }
+    public List<CollocationPreferences> getCollocationPreferencesByUserId(Long userId) {
+        return collocationPreferencesRepository.findByUserIdUser(userId);
+    }
+
+
+    public CollocationPreferences getCollocationPreferencesById(long id) {
+        return collocationPreferencesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Preferences not found with id: " + id));
+    }
+
     public List<CollocationPreferences> getAllCollocationPreferences() {
         return collocationPreferencesRepository.findAll();
     }
 
-    public CollocationPreferences getCollocationPreferencesById(long id) {
-        return collocationPreferencesRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("CollocationPreferences not found with id: " + id));
+    public void deleteCollocationPreferences(long id) {
+        collocationPreferencesRepository.deleteById(id);
     }
 
-    public CollocationPreferences createCollocationPreferences(CollocationPreferences preferences) {
-        return collocationPreferencesRepository.save(preferences);
-    }
     public CollocationPreferences updateCollocationPreferences(long id, CollocationPreferences updatedPreferences) {
-        CollocationPreferences existingPreferences = getCollocationPreferencesById(id);
+        CollocationPreferences existingPreferences = collocationPreferencesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Preferences not found with id: " + id));
+
         existingPreferences.setPets(updatedPreferences.getPets());
         existingPreferences.setSmoking(updatedPreferences.getSmoking());
         existingPreferences.setBudget(updatedPreferences.getBudget());
@@ -34,14 +57,8 @@ public class CollocationPreferencesService {
         existingPreferences.setRoomType(updatedPreferences.getRoomType());
         existingPreferences.setHouseType(updatedPreferences.getHouseType());
         existingPreferences.setLocation(updatedPreferences.getLocation());
+        // Set other properties as needed
 
         return collocationPreferencesRepository.save(existingPreferences);
     }
-
-    public void deleteCollocationPreferences(long id) {
-        collocationPreferencesRepository.deleteById(id);
-    }
-
-
-
 }
