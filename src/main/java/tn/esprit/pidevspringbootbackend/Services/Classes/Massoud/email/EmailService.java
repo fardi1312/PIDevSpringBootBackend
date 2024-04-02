@@ -19,6 +19,9 @@ public class EmailService implements IEmailService {
     private  JavaMailSender mailSender;
     @Autowired
     private  Environment environment;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
     @Override @Async
     public void send(String to, String subject, String content) {
         try {
@@ -79,6 +82,13 @@ public class EmailService implements IEmailService {
         }
     }
 
-
+    public void sendEmail1(String toAdress, String subject, String body) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(toAdress);
+        helper.setSubject(subject);
+        helper.setText(body, true);
+        javaMailSender.send(message);
+    }
 
 }

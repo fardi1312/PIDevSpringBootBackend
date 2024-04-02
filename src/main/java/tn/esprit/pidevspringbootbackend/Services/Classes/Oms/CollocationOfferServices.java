@@ -45,7 +45,9 @@ public class CollocationOfferServices {
     public List<CollocationPreferences> getCollocationPreferencesByUserId(Long userId) {
         return collocationOfferRepository.findByUserIdUser(userId);
     }
-
+    public List<CollocationOffer> getAllCollocationOffersByUserId(long userId) {
+        return collocationOfferRepository.findByUser(userRepository.findByIdUser(userId));
+    }
     public List<CollocationOffer> getAllCollocationOffers() {
         return collocationOfferRepository.findAll();
     }
@@ -95,20 +97,22 @@ public class CollocationOfferServices {
 
         Date end = calendar.getTime();
 
-        boolean conflictFound = false; // Initialize conflictFound to false
+        boolean conflictFound = true; // Initialize conflictFound to false
 
         // Check for conflicts with existing events
-        while (!conflictFound) { // Continue loop until conflictFound is false
+        while (conflictFound) { // Continue loop until conflictFound is false
             for (calendarEvent event : userCalendarEvents) {
+                conflictFound = false ;
                 if ((event.getStart().before(end) && event.getEnd().after(start)) ||
                         (event.getStart().after(start) && event.getEnd().before(end)) ||
                         (event.getStart().before(start) && event.getEnd().after(end)) ||
                         (event.getStart().equals(start) && event.getEnd().equals(end))) {
-                    // Found a conflict with an existing event
-                    calendar.add(Calendar.HOUR_OF_DAY, 1); // Add 1 hour to the start time
+                    calendar.setTime(event.getEnd()); // Add 1 hour to the start time
+
                     start = calendar.getTime(); // Update the start time
                     System.out.println("dfsdfdsf" + start);
-                    calendar.add(Calendar.HOUR_OF_DAY, 1); // Add 1 hour to the start time
+                    calendar.add(Calendar.HOUR_OF_DAY, 1);
+                    System.out.println(start); // Add 1 hour to the start time
                     end =calendar.getTime() ;
                     conflictFound = true; // Set conflictFound to true
 
@@ -127,9 +131,12 @@ public class CollocationOfferServices {
         calendarEvent externalEvent = new calendarEvent();
         externalEvent.setTitle("Accepted Request Event");
         User offerer=collocationOffer.getUser();
+        User requester = collocationRequest.getUser() ;
+
         externalEvent.setStart(start);
         externalEvent.setEnd(end);
-        externalEvent.setRequester(collocationRequest.getUser().getFirstName() + collocationRequest.getUser().getLastName());
+
+        externalEvent.setRequester(requester.getFirstName() + requester.getLastName());
         externalEvent.setOfferer(offerer.getFirstName() + offerer.getLastName());
 
         List<User> users = new ArrayList<>();
@@ -147,7 +154,6 @@ public class CollocationOfferServices {
 
         return true;
     }
-
 
 
 

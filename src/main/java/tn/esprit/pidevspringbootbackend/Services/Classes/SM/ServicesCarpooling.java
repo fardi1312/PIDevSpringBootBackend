@@ -1,7 +1,6 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.SM;
 
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
@@ -395,5 +394,10 @@ public class ServicesCarpooling implements IServiceCarpooling {
         pco.setNbPoint(pcn+pco.getNbPoint());
 
         return  repoPointCount.save(pco);
+    }
+
+    @Override
+    public List<CarpoolingOffer> getCarpoolingById(long iduser){
+        return repoCarpoolingOffer.findByUserOIdUser(iduser);
     }
 }

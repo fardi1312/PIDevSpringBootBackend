@@ -1,10 +1,12 @@
 package tn.esprit.pidevspringbootbackend.RestControllers.SM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingPreferences;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingRequest;
@@ -114,5 +116,16 @@ public class CarpoolingController {
             @PathVariable("price") double price
     ) {
         return iServiceCarpooling.findCarpoolingOffersByDateAndPrice(date, price);
+    }
+
+
+    @GetMapping("/user/{userId}")
+    public List<CarpoolingOffer> getCollocationOffersByUserId(@PathVariable long userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+       return  iServiceCarpooling.getCarpoolingById(user.getIdUser());
+
+
     }
 }

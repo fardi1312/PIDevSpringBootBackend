@@ -41,4 +41,6 @@ public interface IServiceCarpooling {
     List<CarpoolingOffer> findMatchingOffers(Long id);
 
     PointCount updatePoint(Long idu, Long pcn);
+
+    List<CarpoolingOffer> getCarpoolingById(long iduser);
 }

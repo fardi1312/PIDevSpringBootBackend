@@ -72,17 +72,15 @@ public class CollocationOfferRest {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @PostMapping("/offers/accept/{offerId}/request/{requestId}")
-    public ResponseEntity<Void> acceptCollocationRequest(
-            @PathVariable long offerId,
-            @PathVariable long requestId) {
 
-        boolean accepted = collocationOfferServices.acceptRequest(offerId, requestId);
+    @PutMapping("/{offerId}/{requestId}")
+    public ResponseEntity<String> acceptCollocationRequest(@PathVariable("offerId") long offerId, @PathVariable("requestId") long requestId) {
+        boolean result = collocationOfferServices.acceptRequest(offerId, requestId);
 
-        if (accepted) {
-            return new ResponseEntity<>(HttpStatus.OK);
+        if (result) {
+            return ResponseEntity.ok("Collocation request accepted successfully");
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.badRequest().body("Failed to accept collocation request");
         }
     }
 
@@ -126,6 +124,19 @@ public class CollocationOfferRest {
         User user = userService.getUserByEmail(authentication.getName());
         List<CollocationOffer> matchingOffers = matchingService.getMatchingOffersForUser(user.getIdUser());
         return ResponseEntity.ok(matchingOffers);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CollocationOffer>> getCollocationOffersByUserId(@PathVariable long userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+        List<CollocationOffer> collocationOffers = collocationOfferServices.getAllCollocationOffersByUserId(user.getIdUser());
+        if (collocationOffers != null) {
+            return ResponseEntity.ok(collocationOffers);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
 
