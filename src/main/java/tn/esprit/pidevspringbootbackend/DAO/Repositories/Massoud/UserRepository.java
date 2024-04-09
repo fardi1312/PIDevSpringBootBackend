@@ -22,4 +22,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByRole(Role role);
 
     User findFirstByEmail(String email);
+
+    void deleteByEmail(String email);
+    List<User> findUsersByFollowerUsers(User user, Pageable pageable);
+    List<User> findUsersByFollowingUsers(User user, Pageable pageable);
+    List<User> findUsersByLikedPosts(Post post, Pageable pageable);
+    List<User> findUsersByLikedComments(Comment comment, Pageable pageable);
+
+    @Query(value = "select * from users u " +
+            "where concat(u.first_name, ' ', u.last_name) like %:name% " +
+            "order by u.first_name asc, u.last_name asc",
+            nativeQuery = true)
+    List<User> findUsersByName(String name, Pageable pageable);
+
+
 }

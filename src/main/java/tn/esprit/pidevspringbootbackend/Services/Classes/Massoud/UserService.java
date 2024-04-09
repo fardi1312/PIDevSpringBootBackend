@@ -4,10 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Comment;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoPointCount;
@@ -21,6 +25,7 @@ import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileNamingUtil;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -171,5 +176,21 @@ public class UserService implements IUserService {
         user.setEmailVerified(true);
         userRepository.save(user);
         return true;
+    }
+
+    @Override
+    public List<User> getLikesByPostPaginate(Post post, Integer page, Integer size) {
+        return userRepository.findUsersByLikedPosts(
+                post,
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "firstName", "lastName"))
+        );
+    }
+
+    @Override
+    public List<User> getLikesByCommentPaginate(Comment comment, Integer page, Integer size) {
+        return userRepository.findUsersByLikedComments(
+                comment,
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "firstName", "lastName"))
+        );
     }
 }
