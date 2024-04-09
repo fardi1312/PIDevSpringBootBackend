@@ -158,4 +158,31 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return false;
     }
+
+
+    /////////////////sprint 2///////////////////////
+    @JsonIgnore
+    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
+    private List<Post> postList;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "likeList")
+    private List<Post> likedPosts = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "likeList")
+    private List<Comment> likedComments = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "follow_users",
+            joinColumns = @JoinColumn(name = "followed_id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id")
+    )
+    private List<User> followerUsers = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "followerUsers")
+    private List<User> followingUsers = new ArrayList<>();
 }

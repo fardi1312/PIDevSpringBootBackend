@@ -1,9 +1,14 @@
 package tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Comment;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateEmailDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
+
+import java.util.List;
+
 public interface IUserService {
     void forgotPassword(String email);
 
@@ -18,4 +23,8 @@ public interface IUserService {
     String getCoverPhotoUrlForConnectedUser(User connectedUser);
     User updateEmail(User user, UpdateEmailDTO updateEmailDto);
     boolean verifyEmail(String email);
+
+    List<User> getLikesByPostPaginate(Post targetPost, Integer page, Integer size);
+
+    List<User> getLikesByCommentPaginate(Comment targetComment, Integer page, Integer size);
 }
