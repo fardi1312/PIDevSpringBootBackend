@@ -22,7 +22,7 @@ public class TimelineController {
     private final IPostService postService;
     private final ITagService tagService;
 
-    @GetMapping( "/")
+    @GetMapping( "/posts")
     public ResponseEntity<?> getTimelinePosts(@RequestParam("page") Integer page,
                                               @RequestParam("size") Integer size) {
         page = page < 0 ? 0 : page-1;
