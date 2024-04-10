@@ -7,6 +7,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Tag;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Response.PostResponse;
+import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.TagDTO;
 
 import java.util.List;
@@ -30,4 +31,14 @@ public interface IPostService {
     Post createPostShare(String content, Long postShareId);
     Post updatePostShare(String content, Long postShareId);
     void deletePostShare(Long postShareId);
+
+    User getUserById(Long userId);
+
+    List<UserResponse> getFollowerUsersPaginate(Long userId, Integer page, Integer size);
+
+    void followUser(Long userId);
+
+    void unfollowUser(Long userId);
+
+    List<UserResponse> getFollowingUsersPaginate(Long userId, Integer page, Integer size);
 }

@@ -75,6 +75,9 @@ public class Post {
         Post post = (Post) o;
         return Objects.equals(id, post.id) && Objects.equals(author, post.author);
     }
+    public Integer getShareCount() {
+        return shareCount != null ? shareCount : 0;
+    }
 
     @Override
     public int hashCode() {

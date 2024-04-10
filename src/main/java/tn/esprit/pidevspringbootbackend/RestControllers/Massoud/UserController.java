@@ -6,14 +6,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
+import tn.esprit.pidevspringbootbackend.DAO.Response.PostResponse;
+import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
+import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IPostService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 import tn.esprit.pidevspringbootbackend.UserConfig.exception.UserNotFoundException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,6 +26,7 @@ import java.util.Map;
 @RequestMapping("/user/account")
 public class UserController {
     private final IUserService userService;
+    private final IPostService postService;
 
     @GetMapping("")
     public ResponseEntity<?> authenticatedUser(Authentication authentication) {
@@ -97,6 +103,7 @@ public class UserController {
                     .body("Failed to update password: " + e.getMessage());
         }
     }
+
     @GetMapping("/profilephoto")
     public String getUserProfilePhotoUrl(Authentication authentication) {
         User user = userService.getUserByEmail(authentication.getName());
@@ -107,4 +114,74 @@ public class UserController {
         User user = userService.getUserByEmail(authentication.getName());
         return userService.getCoverPhotoUrlForConnectedUser(user);
     }
+
+
+
+///////////////////////
+
+    @PostMapping("/follow")
+    public ResponseEntity<?> followUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+
+
+        postService.followUser(user.getIdUser());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/unfollow")
+    public ResponseEntity<?> unfollowUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+
+
+        postService.unfollowUser(user.getIdUser());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/users/following")
+    public ResponseEntity<?> getUserFollowingUsers(@RequestParam("page") Integer page,
+                                                   @RequestParam("size") Integer size) {
+        page = page < 0 ? 0 : page-1;
+        size = size <= 0 ? 5 : size;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+
+        List<UserResponse> followingList = postService.getFollowingUsersPaginate(user.getIdUser(), page, size);
+        return new ResponseEntity<>(followingList, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/users/follower")
+    public ResponseEntity<?> getUserFollowerUsers(
+                                                  @RequestParam("page") Integer page,
+                                                  @RequestParam("size") Integer size) {
+        page = page < 0 ? 0 : page-1;
+        size = size <= 0 ? 5 : size;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+
+
+        List<UserResponse> followingList = postService.getFollowerUsersPaginate(user.getIdUser(), page, size);
+        return new ResponseEntity<>(followingList, HttpStatus.OK);
+    }
+
+    @GetMapping("/users/posts")
+    public ResponseEntity<?> getUserPosts(
+                                          @RequestParam("page") Integer page,
+                                          @RequestParam("size") Integer size) {
+        page = page < 0 ? 0 : page-1;
+        size = size <= 0 ? 5 : size;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(authentication.getName());
+        User targetUser = userService.getUserById(user.getIdUser());
+        List<PostResponse> userPosts = postService.getPostsByUserPaginate(targetUser, page, size);
+        return new ResponseEntity<>(userPosts, HttpStatus.OK);
+    }
+
+
 }

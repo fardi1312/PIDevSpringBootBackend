@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,17 +18,16 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Tag;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Massoud.NotificationType;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.PostRepository;
+import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Response.PostResponse;
+import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.TagDTO;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.Comment.CommentService;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.Tag.TagService;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.UserService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.INotificationService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IPostService;
-import tn.esprit.pidevspringbootbackend.UserConfig.exception.EmptyCommentException;
-import tn.esprit.pidevspringbootbackend.UserConfig.exception.InvalidOperationException;
-import tn.esprit.pidevspringbootbackend.UserConfig.exception.PostNotFoundException;
-import tn.esprit.pidevspringbootbackend.UserConfig.exception.TagNotFoundException;
+import tn.esprit.pidevspringbootbackend.UserConfig.exception.*;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileNamingUtil;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
 
@@ -50,6 +50,7 @@ public class PostService implements IPostService {
     private final Environment environment;
     private final FileNamingUtil fileNamingUtil;
     private final FileUploadUtil fileUploadUtil;
+    private  final UserRepository userRepository;
 
     @Override
     public Post getPostById(Long postId) {
@@ -67,16 +68,14 @@ public class PostService implements IPostService {
                 .build();
     }
 
-    @Override
     public List<PostResponse> getTimelinePostsPaginate(Integer page, Integer size) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User authUser = userService.getUserByEmail(authentication.getName());
-               List<User> followingList = authUser.getFollowingUsers();
+        List<User> followingList = authUser.getFollowingUsers();
         followingList.add(authUser);
         List<Long> followingListIds = followingList.stream().map(User::getIdUser).toList();
-        return postRepository.findPostsByAuthorIdIn(
-                        followingListIds,
-                        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateCreated")))
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findPostsByAuthorIdUserIn(followingListIds, pageable)
                 .stream().map(this::postToPostResponse).collect(Collectors.toList());
     }
 
@@ -342,13 +341,18 @@ public class PostService implements IPostService {
     public Post createPostShare(String content, Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User authUser = userService.getUserByEmail(authentication.getName());
-               Post targetPost = getPostById(postId);
+
+        Post targetPost = getPostById(postId);
+        if (targetPost == null) {
+            throw new PostNotFoundException("Post with id " + postId + " not found");
+        }
+
         if (!targetPost.getIsTypeShare()) {
             Post newPostShare = new Post();
             newPostShare.setContent(content);
             newPostShare.setAuthor(authUser);
             newPostShare.setLikeCount(0);
-            newPostShare.setShareCount(null);
+            newPostShare.setShareCount(0); // Initialize share count to 0
             newPostShare.setCommentCount(0);
             newPostShare.setPostPhoto(null);
             newPostShare.setIsTypeShare(true);
@@ -356,10 +360,12 @@ public class PostService implements IPostService {
             newPostShare.setDateCreated(new Date());
             newPostShare.setDateLastModified(new Date());
             Post savedPostShare = postRepository.save(newPostShare);
-            targetPost.getShareList().add(savedPostShare);
-            targetPost.setShareCount(targetPost.getShareCount()+1);
-            postRepository.save(targetPost);
 
+            // Update share count for targetPost
+            targetPost.getShareList().add(savedPostShare);
+            targetPost.setShareCount(targetPost.getShareCount() + 1);
+
+            // Send notification if the author of targetPost is not the authenticated user
             if (!targetPost.getAuthor().equals(authUser)) {
                 notificationService.sendNotification(
                         targetPost.getAuthor(),
@@ -372,9 +378,10 @@ public class PostService implements IPostService {
 
             return savedPostShare;
         } else {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Cannot share a shared post");
         }
     }
+
 
     @Override
     public Post updatePostShare(String content, Long postShareId) {
@@ -426,4 +433,76 @@ public class PostService implements IPostService {
                 .likedByAuthUser(post.getLikeList().contains(authUser))
                 .build();
     }
+
+    @Override
+    public void followUser(Long userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authUser = userService.getUserByEmail(authentication.getName());
+        if (!authUser.getIdUser().equals(userId)) {
+            User userToFollow = getUserById(userId);
+            authUser.getFollowingUsers().add(userToFollow);
+            authUser.setFollowingCount(authUser.getFollowingCount() + 1);
+            userToFollow.getFollowerUsers().add(authUser);
+            userToFollow.setFollowerCount(userToFollow.getFollowerCount() + 1);
+            userRepository.save(userToFollow);
+            userRepository.save(authUser);
+        } else {
+            throw new InvalidOperationException();
+        }
+    }
+
+    @Override
+    public void unfollowUser(Long userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authUser = userService.getUserByEmail(authentication.getName());
+        if (!authUser.getIdUser().equals(userId)) {
+            User userToUnfollow = getUserById(userId);
+            authUser.getFollowingUsers().remove(userToUnfollow);
+            authUser.setFollowingCount(authUser.getFollowingCount() - 1);
+            userToUnfollow.getFollowerUsers().remove(authUser);
+            userToUnfollow.setFollowerCount(userToUnfollow.getFollowerCount() - 1);
+            userRepository.save(userToUnfollow);
+            userRepository.save(authUser);
+        } else {
+            throw new InvalidOperationException();
+        }
+    }
+
+    @Override
+    public List<UserResponse> getFollowingUsersPaginate(Long userId, Integer page, Integer size) {
+        User targetUser = getUserById(userId);
+        return userRepository.findUsersByFollowerUsers(targetUser,
+                        PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "firstName", "lastName")))
+                .stream().map(this::userToUserResponse).collect(Collectors.toList());
+    }
+
+
+
+
+
+
+    @Override
+    public List<UserResponse> getFollowerUsersPaginate(Long userId, Integer page, Integer size) {
+        User targetUser = getUserById(userId);
+        return userRepository.findUsersByFollowingUsers(targetUser,
+                        PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "firstName", "lastName")))
+                .stream().map(this::userToUserResponse).collect(Collectors.toList());
+    }
+
+    private UserResponse userToUserResponse(User user) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authUser = userService.getUserByEmail(authentication.getName());
+        return UserResponse.builder()
+                .user(user)
+                .followedByAuthUser(user.getFollowerUsers().contains(authUser))
+                .build();
+    }
+
+    @Override
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
+
+
+
 }

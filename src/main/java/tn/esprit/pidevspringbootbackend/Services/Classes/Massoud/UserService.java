@@ -7,6 +7,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,11 +17,13 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoPointCount;
+import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateEmailDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IEmailService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
+import tn.esprit.pidevspringbootbackend.UserConfig.exception.InvalidOperationException;
 import tn.esprit.pidevspringbootbackend.UserConfig.exception.UserNotFoundException;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileNamingUtil;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
@@ -27,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional

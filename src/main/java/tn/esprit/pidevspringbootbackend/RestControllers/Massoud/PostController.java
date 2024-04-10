@@ -190,10 +190,19 @@ public class PostController {
     @PostMapping("/posts/{postId}/share/create")
     public ResponseEntity<?> createPostShare(@PathVariable("postId") Long postId,
                                              @RequestParam(value = "content", required = false) Optional<String> content) {
-        String contentToAdd = content.isEmpty() ? null : content.get();
+        // Check if the post with the given postId exists
+
+
+        // Get the content if present, otherwise set it to null
+        String contentToAdd = content.orElse(null);
+
+        // Create the post share
         Post postShare = postService.createPostShare(contentToAdd, postId);
+
+        // Return the created post share
         return new ResponseEntity<>(postShare, HttpStatus.OK);
     }
+
 
     @PostMapping("/posts/{postShareId}/share/update")
     public ResponseEntity<?> updatePostShare(@PathVariable("postShareId") Long postShareId,

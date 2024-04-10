@@ -3,6 +3,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Comment;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
+import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateEmailDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
@@ -27,4 +28,14 @@ public interface IUserService {
     List<User> getLikesByPostPaginate(Post targetPost, Integer page, Integer size);
 
     List<User> getLikesByCommentPaginate(Comment targetComment, Integer page, Integer size);
+
+
+
+
+
+
+
+
+
+
 }
