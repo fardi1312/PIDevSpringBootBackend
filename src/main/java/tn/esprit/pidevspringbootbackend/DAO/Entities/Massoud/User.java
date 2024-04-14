@@ -16,10 +16,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingRequest;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.PointCount;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -111,7 +108,7 @@ public class User implements UserDetails {
     private List<CollocationRequest> collocationRequests = new ArrayList<>();
 
     @OneToOne
-    private CollocationPreferences collocationPreferences ;
+    private CollocationPreferences collocationPreferences;
 
     @OneToMany(mappedBy = "user")
     private List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
@@ -127,7 +124,6 @@ public class User implements UserDetails {
 
     @OneToOne
     CarpoolingPreferences carpoolingPreferences;
-
 
 
     public void setBirthDate(Date birthDate) {
@@ -161,17 +157,6 @@ public class User implements UserDetails {
 
 
     /////////////////sprint 2///////////////////////
-    @JsonIgnore
-    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
-    private List<Post> postList;
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "likeList")
-    private List<Post> likedPosts = new ArrayList<>();
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "likeList")
-    private List<Comment> likedComments = new ArrayList<>();
 
     @JsonIgnore
     @ManyToMany
@@ -185,4 +170,35 @@ public class User implements UserDetails {
     @JsonIgnore
     @ManyToMany(mappedBy = "followerUsers")
     private List<User> followingUsers = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
+    private List<Post> postList;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
+    private List<Comment> comments;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "likeList")
+    private List<Post> likedPosts = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "likeList")
+    private List<Comment> likedComments = new ArrayList<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(idUser, user.idUser) && Objects.equals(email, user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idUser, email);
+    }
+
+
 }

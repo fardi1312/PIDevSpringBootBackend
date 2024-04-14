@@ -10,6 +10,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Response.PostResponse;
 import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.TagDTO;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface IPostService {
@@ -22,7 +23,7 @@ public interface IPostService {
     Post createNewPost(String content, MultipartFile postPhoto, List<TagDTO> postTags);
     Post updatePost(Long postId, String content, MultipartFile postPhoto, List<TagDTO> postTags);
     void deletePost(Long postId);
-    void deletePostPhoto(Long postId);
+    void deletePostPhoto(Long postId) throws IOException;
     void likePost(Long postId);
     void unlikePost(Long postId);
     Comment createPostComment(Long postId, String content);
@@ -41,4 +42,6 @@ public interface IPostService {
     void unfollowUser(Long userId);
 
     List<UserResponse> getFollowingUsersPaginate(Long userId, Integer page, Integer size);
+
+    String getPhotoUrlPostbyIdPost(Long postId);
 }

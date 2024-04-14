@@ -6,12 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Comment;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
@@ -30,7 +28,6 @@ import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -198,4 +195,35 @@ public class UserService implements IUserService {
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "firstName", "lastName"))
         );
     }
+
+    @Override
+    public List<UserResponse> getUserSearchResult(String key, Integer page, Integer size) {
+        if (key.length() < 3) throw new InvalidOperationException();
+
+        return userRepository.findUsersByName(
+                key,
+                PageRequest.of(page, size)
+        ).stream().map(this::userToUserResponse).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public UserResponse userToUserResponse(User user) {
+        User authUser = getAuthenticatedUser();
+        return UserResponse.builder()
+                .user(user)
+                .followedByAuthUser(user.getFollowerUsers().contains(authUser))
+                .build();
+    }
+
+
+    @Override
+    public final User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return getUserByEmail(authentication.getName());
+    }
+
+
+
+
 }

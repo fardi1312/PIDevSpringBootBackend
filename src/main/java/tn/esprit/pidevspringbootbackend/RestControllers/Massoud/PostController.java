@@ -22,6 +22,7 @@ import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.ITagService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 import tn.esprit.pidevspringbootbackend.UserConfig.exception.EmptyPostException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,7 +83,7 @@ public class PostController {
     }
 
     @PostMapping("/posts/{postId}/photo/delete")
-    public ResponseEntity<?> deletePostPhoto(@PathVariable("postId") Long postId) {
+    public ResponseEntity<?> deletePostPhoto(@PathVariable("postId") Long postId) throws IOException {
         postService.deletePostPhoto(postId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -190,16 +191,8 @@ public class PostController {
     @PostMapping("/posts/{postId}/share/create")
     public ResponseEntity<?> createPostShare(@PathVariable("postId") Long postId,
                                              @RequestParam(value = "content", required = false) Optional<String> content) {
-        // Check if the post with the given postId exists
-
-
-        // Get the content if present, otherwise set it to null
-        String contentToAdd = content.orElse(null);
-
-        // Create the post share
+        String contentToAdd = content.isEmpty() ? null : content.get();
         Post postShare = postService.createPostShare(contentToAdd, postId);
-
-        // Return the created post share
         return new ResponseEntity<>(postShare, HttpStatus.OK);
     }
 
@@ -227,5 +220,13 @@ public class PostController {
         Tag targetTag = tagService.getTagByName(tagName);
         List<PostResponse> taggedPosts = postService.getPostByTagPaginate(targetTag, page, size);
         return new ResponseEntity<>(taggedPosts, HttpStatus.OK);
+    }
+
+
+
+    @GetMapping("posts/{postId}/photo")
+    public ResponseEntity<?> getPhotoUrlPostbyIdPost(@PathVariable("postId") Long postId) {
+        String photoUrl = postService.getPhotoUrlPostbyIdPost(postId);
+        return new ResponseEntity<>(photoUrl, HttpStatus.OK);
     }
 }
