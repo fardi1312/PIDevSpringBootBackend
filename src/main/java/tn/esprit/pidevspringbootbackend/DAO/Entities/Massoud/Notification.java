@@ -23,19 +23,19 @@ public class Notification {
     @Column(nullable = false)
     private String type;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "receiver_id")
     private User receiver;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "sender_id")
     private User sender;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "owning_post_id")
     private Post owningPost;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "owning_comment_id")
     private Comment owningComment;
 

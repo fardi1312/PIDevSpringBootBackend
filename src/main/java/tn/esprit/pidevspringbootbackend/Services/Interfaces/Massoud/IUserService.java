@@ -30,12 +30,9 @@ public interface IUserService {
     List<User> getLikesByCommentPaginate(Comment targetComment, Integer page, Integer size);
 
 
+    List<UserResponse> getUserSearchResult(String key, Integer page, Integer size);
 
+    UserResponse userToUserResponse(User user);
 
-
-
-
-
-
-
+    User getAuthenticatedUser();
 }

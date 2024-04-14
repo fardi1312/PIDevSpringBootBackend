@@ -37,11 +37,13 @@ public class CommentService implements ICommentService {
         return commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
     }
 
+
+
+
     @Override
     public Comment createNewComment(String content, Post post) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authUser = userService.getUserByEmail(authentication.getName());
-               Comment newComment = new Comment();
+        User authUser = userService.getAuthenticatedUser();
+        Comment newComment = new Comment();
         newComment.setContent(content);
         newComment.setAuthor(authUser);
         newComment.setPost(post);

@@ -41,6 +41,14 @@ public class UserController {
             throw new IllegalStateException("User is not authenticated");
         }
     }
+
+    @GetMapping("/iduser")
+    public ResponseEntity<?> getIdAuthenticatedUser(Authentication authentication) {
+        User user = userService.getUserByEmail(authentication.getName());
+        return new ResponseEntity<>(user.getIdUser(), HttpStatus.OK);
+    }
+
+
     @PostMapping("/update/info")
     public ResponseEntity<User> updateUserInfo(@Valid @RequestBody UpdateProfilDTO updateProfileDTO, Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
@@ -119,68 +127,81 @@ public class UserController {
 
 ///////////////////////
 
-    @PostMapping("/follow")
-    public ResponseEntity<?> followUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-
-
-
-        postService.followUser(user.getIdUser());
+    @PostMapping("/follow/{userId}")
+    public ResponseEntity<?> followUser(@PathVariable("userId") Long userId) {
+        postService.followUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/unfollow")
-    public ResponseEntity<?> unfollowUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-
-
-
-        postService.unfollowUser(user.getIdUser());
+    @PostMapping("/unfollow/{userId}")
+    public ResponseEntity<?> unfollowUser(@PathVariable("userId") Long userId) {
+        postService.unfollowUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/users/following")
-    public ResponseEntity<?> getUserFollowingUsers(@RequestParam("page") Integer page,
+    @GetMapping("/users/{userId}/following")
+    public ResponseEntity<?> getUserFollowingUsers(@PathVariable("userId") Long userId,
+                                                   @RequestParam("page") Integer page,
                                                    @RequestParam("size") Integer size) {
         page = page < 0 ? 0 : page-1;
         size = size <= 0 ? 5 : size;
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-
-
-        List<UserResponse> followingList = postService.getFollowingUsersPaginate(user.getIdUser(), page, size);
+        List<UserResponse> followingList = postService.getFollowingUsersPaginate(userId, page, size);
         return new ResponseEntity<>(followingList, HttpStatus.OK);
     }
 
-
-    @GetMapping("/users/follower")
-    public ResponseEntity<?> getUserFollowerUsers(
+    @GetMapping("/users/{userId}/follower")
+    public ResponseEntity<?> getUserFollowerUsers(@PathVariable("userId") Long userId,
                                                   @RequestParam("page") Integer page,
                                                   @RequestParam("size") Integer size) {
         page = page < 0 ? 0 : page-1;
         size = size <= 0 ? 5 : size;
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-
-
-        List<UserResponse> followingList = postService.getFollowerUsersPaginate(user.getIdUser(), page, size);
+        List<UserResponse> followingList = postService.getFollowerUsersPaginate(userId, page, size);
         return new ResponseEntity<>(followingList, HttpStatus.OK);
     }
 
-    @GetMapping("/users/posts")
-    public ResponseEntity<?> getUserPosts(
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
+        User authUser = userService.getAuthenticatedUser();
+        User targetUser = userService.getUserById(userId);
+        UserResponse userResponse = UserResponse.builder()
+                .user(targetUser)
+                .followedByAuthUser(targetUser.getFollowerUsers().contains(authUser))
+                .build();
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/users/{userId}/posts")
+    public ResponseEntity<?> getUserPosts(@PathVariable("userId") Long userId,
                                           @RequestParam("page") Integer page,
                                           @RequestParam("size") Integer size) {
         page = page < 0 ? 0 : page-1;
         size = size <= 0 ? 5 : size;
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-        User targetUser = userService.getUserById(user.getIdUser());
+        User targetUser = userService.getUserById(userId);
         List<PostResponse> userPosts = postService.getPostsByUserPaginate(targetUser, page, size);
         return new ResponseEntity<>(userPosts, HttpStatus.OK);
+    }
+
+    @GetMapping("/users/search")
+    public ResponseEntity<?> searchUser(@RequestParam("key") String key,
+                                        @RequestParam("page") Integer page,
+                                        @RequestParam("size") Integer size) {
+        page = page < 0 ? 0 : page-1;
+        size = size <= 0 ? 5 : size;
+        List<UserResponse> userSearchResult = userService.getUserSearchResult(key, page, size);
+        return new ResponseEntity<>(userSearchResult, HttpStatus.OK);
+    }
+
+//http://localhost:8083/user/account/users/4/coverphoto
+    @GetMapping("/users/{userId}/coverphoto")
+    public String getUserCoverPhotoUrl(@PathVariable("userId") Long userId) {
+        User user = userService.getUserById(userId);
+        return userService.getCoverPhotoUrlForConnectedUser(user);
+    }
+//http://localhost:8083/user/account/users/4/profilephoto
+    @GetMapping("/users/{userId}/profilephoto")
+    public String getUserProfilePhotoUrl(@PathVariable("userId") Long userId) {
+        User user = userService.getUserById(userId);
+        return userService.getPhotoUrlForConnectedUser(user);
     }
 
 

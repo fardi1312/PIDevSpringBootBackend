@@ -31,7 +31,6 @@ import tn.esprit.pidevspringbootbackend.UserConfig.exception.*;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileNamingUtil;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +40,9 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class PostService implements IPostService {
+
+     private final  String UrlBase   =  "http://localhost/Uploads/UserImages/" ;
+
 
     private final PostRepository postRepository;
     private final UserService userService;
@@ -119,11 +121,9 @@ public class PostService implements IPostService {
         newPost.setDateLastModified(new Date());
 
         if (postPhoto != null && postPhoto.getSize() > 0) {
-            String uploadDir = environment.getProperty("upload.post.images");
-            String newPhotoName = fileNamingUtil.nameFile(postPhoto);
-            String newPhotoUrl = environment.getProperty("app.root.backend") + File.separator
-                    + environment.getProperty("upload.post.images") + File.separator + newPhotoName;
-            newPost.setPostPhoto(newPhotoUrl);
+            String uploadDir = environment.getProperty("upload.user.images");
+            String newPhotoName = fileNamingUtil.nameFile(postPhoto)  ;
+            newPost.setPostPhoto(UrlBase + newPhotoName );
             try {
                 fileUploadUtil.saveNewFile(uploadDir, newPhotoName, postPhoto);
             } catch (IOException e) {
@@ -149,6 +149,26 @@ public class PostService implements IPostService {
         return postRepository.save(newPost);
     }
 
+    public User updateProfilePhoto(User user, MultipartFile profilePhoto) {
+        if (profilePhoto != null && !profilePhoto.isEmpty() && profilePhoto.getSize() > 0) {
+            try {
+                String uploadDir = environment.getProperty("upload.user.images");
+                String oldPhotoName = user.getProfilePhoto();
+                String newPhotoName = fileNamingUtil.nameFile(profilePhoto);
+                user.setProfilePhoto(newPhotoName);
+                if (oldPhotoName != null) {
+                    fileUploadUtil.deleteFile(uploadDir, oldPhotoName);
+                }
+                fileUploadUtil.saveNewFile(uploadDir, newPhotoName, profilePhoto);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to update profile photo", e);
+            }
+        }
+        return userRepository.save(user);
+    }
+
+
+
     @Override
     public Post updatePost(Long postId, String content, MultipartFile postPhoto, List<TagDTO> postTags) {
         Post targetPost = getPostById(postId);
@@ -157,12 +177,14 @@ public class PostService implements IPostService {
         }
 
         if (postPhoto != null && postPhoto.getSize() > 0) {
-            String uploadDir = environment.getProperty("upload.post.images");
-            String oldPhotoName = getPhotoNameFromPhotoUrl(targetPost.getPostPhoto());
+
+            String uploadDir = environment.getProperty("upload.user.images");
+            String oldPhotoName = targetPost.getPostPhoto();
             String newPhotoName = fileNamingUtil.nameFile(postPhoto);
-            String newPhotoUrl = environment.getProperty("app.root.backend") + File.separator
-                    + environment.getProperty("upload.post.images") + File.separator + newPhotoName;
-            targetPost.setPostPhoto(newPhotoUrl);
+            targetPost.setPostPhoto(UrlBase + newPhotoName);
+
+
+
             try {
                 if (oldPhotoName == null) {
                     fileUploadUtil.saveNewFile(uploadDir, newPhotoName, postPhoto);
@@ -218,8 +240,9 @@ public class PostService implements IPostService {
             postRepository.deleteById(postId);
 
             if (targetPost.getPostPhoto() != null) {
-                String uploadDir = environment.getProperty("upload.post.images");
-                String photoName = getPhotoNameFromPhotoUrl(targetPost.getPostPhoto());
+                String photoName = targetPost.getPostPhoto();
+                String uploadDir = environment.getProperty("upload.user.images") + photoName;
+
                 try {
                     fileUploadUtil.deleteFile(uploadDir, photoName);
                 } catch (IOException ignored) {}
@@ -230,18 +253,17 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public void deletePostPhoto(Long postId) {
+    public void deletePostPhoto(Long postId) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User authUser = userService.getUserByEmail(authentication.getName());
-               Post targetPost = getPostById(postId);
+        Post targetPost = getPostById(postId);
 
         if (targetPost.getAuthor().equals(authUser)) {
-            if (targetPost.getPostPhoto() != null) {
-                String uploadDir = environment.getProperty("upload.post.images");
-                String photoName = getPhotoNameFromPhotoUrl(targetPost.getPostPhoto());
-                try {
-                    fileUploadUtil.deleteFile(uploadDir, photoName);
-                } catch (IOException ignored) {}
+            String photoName = targetPost.getPostPhoto();
+            String uploadDir = environment.getProperty("upload.user.images") + photoName;
+
+            if (photoName != null && !photoName.isEmpty()) {
+                fileUploadUtil.deleteFile(uploadDir, photoName);
             }
 
             targetPost.setPostPhoto(null);
@@ -250,6 +272,7 @@ public class PostService implements IPostService {
             throw new InvalidOperationException();
         }
     }
+
 
     @Override
     public void likePost(Long postId) {
@@ -271,7 +294,7 @@ public class PostService implements IPostService {
                 );
             }
         } else {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("User has already liked the post.");
         }
     }
 
@@ -301,9 +324,8 @@ public class PostService implements IPostService {
     public Comment createPostComment(Long postId, String content) {
         if (StringUtils.isEmpty(content)) throw new EmptyCommentException();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authUser = userService.getUserByEmail(authentication.getName());
-               Post targetPost = getPostById(postId);
+        User authUser = userService.getAuthenticatedUser();
+        Post targetPost = getPostById(postId);
         Comment savedComment = commentService.createNewComment(content, targetPost);
         targetPost.setCommentCount(targetPost.getCommentCount()+1);
         postRepository.save(targetPost);
@@ -339,20 +361,14 @@ public class PostService implements IPostService {
 
     @Override
     public Post createPostShare(String content, Long postId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authUser = userService.getUserByEmail(authentication.getName());
-
+        User authUser = userService.getAuthenticatedUser();
         Post targetPost = getPostById(postId);
-        if (targetPost == null) {
-            throw new PostNotFoundException("Post with id " + postId + " not found");
-        }
-
         if (!targetPost.getIsTypeShare()) {
             Post newPostShare = new Post();
             newPostShare.setContent(content);
             newPostShare.setAuthor(authUser);
             newPostShare.setLikeCount(0);
-            newPostShare.setShareCount(0); // Initialize share count to 0
+            newPostShare.setShareCount(null);
             newPostShare.setCommentCount(0);
             newPostShare.setPostPhoto(null);
             newPostShare.setIsTypeShare(true);
@@ -360,12 +376,10 @@ public class PostService implements IPostService {
             newPostShare.setDateCreated(new Date());
             newPostShare.setDateLastModified(new Date());
             Post savedPostShare = postRepository.save(newPostShare);
-
-            // Update share count for targetPost
             targetPost.getShareList().add(savedPostShare);
-            targetPost.setShareCount(targetPost.getShareCount() + 1);
+            targetPost.setShareCount(targetPost.getShareCount()+1);
+            postRepository.save(targetPost);
 
-            // Send notification if the author of targetPost is not the authenticated user
             if (!targetPost.getAuthor().equals(authUser)) {
                 notificationService.sendNotification(
                         targetPost.getAuthor(),
@@ -378,7 +392,7 @@ public class PostService implements IPostService {
 
             return savedPostShare;
         } else {
-            throw new InvalidOperationException("Cannot share a shared post");
+            throw new InvalidOperationException();
         }
     }
 
@@ -415,15 +429,7 @@ public class PostService implements IPostService {
         }
     }
 
-    private String getPhotoNameFromPhotoUrl(String photoUrl) {
-        if (photoUrl != null) {
-            String stringToOmit = environment.getProperty("app.root.backend") + File.separator
-                    + environment.getProperty("upload.post.images") + File.separator;
-            return photoUrl.substring(stringToOmit.length());
-        } else {
-            return null;
-        }
-    }
+
 
     private PostResponse postToPostResponse(Post post) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -502,6 +508,27 @@ public class PostService implements IPostService {
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
+
+
+
+@Override
+    public String getPhotoUrlPostbyIdPost(Long postId){
+        if(postId != null){
+            Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+            String photoFileName = post.getPostPhoto();
+            if (photoFileName != null && !photoFileName.isEmpty()) {
+                return photoFileName;
+            }
+        }
+        return null;
+    }
+
+
+
+
+
+
+
 
 
 

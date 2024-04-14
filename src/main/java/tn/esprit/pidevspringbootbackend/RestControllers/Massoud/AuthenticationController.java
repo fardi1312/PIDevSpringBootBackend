@@ -75,4 +75,10 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to reset password!");
         }
     }
+
+    @GetMapping("/user/users/{idUser}")
+    public ResponseEntity<User> getUserById(@PathVariable Long idUser) {
+        User user = userService.getUserById(idUser);
+        return ResponseEntity.ok(user);
+    }
 }
