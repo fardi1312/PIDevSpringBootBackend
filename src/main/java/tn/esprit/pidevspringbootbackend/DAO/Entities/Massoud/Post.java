@@ -26,6 +26,10 @@ public class Post {
     private Integer commentCount;
     private Integer shareCount;
 
+
+
+
+
     @Column(nullable = false)
     private Boolean isTypeShare;
 
