@@ -49,6 +49,12 @@ public class UserController {
     }
 
 
+
+
+
+
+
+
     @PostMapping("/update/info")
     public ResponseEntity<User> updateUserInfo(@Valid @RequestBody UpdateProfilDTO updateProfileDTO, Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {

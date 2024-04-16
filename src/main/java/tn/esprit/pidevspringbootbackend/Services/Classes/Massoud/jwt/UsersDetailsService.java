@@ -34,4 +34,7 @@ public class UsersDetailsService implements UserDetailsService {
         return currentUser.get();
     }
 
+    public void deleteCurrentUser() {
+        currentUser.remove();
+    }
 }
