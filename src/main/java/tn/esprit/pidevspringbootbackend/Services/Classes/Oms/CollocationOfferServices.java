@@ -10,8 +10,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.*;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Request;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.*;
-import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.QrCodeServices;
-
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.Resizable ;
 import java.util.*;
 
 @Service
@@ -79,6 +78,22 @@ public class CollocationOfferServices {
         return true ;
 
     }
+    public boolean SendMail1(calendarEvent event ) {
+        User offerer = userRepository.findByIdUser(event.getIdOfferer()) ;
+        User requester = userRepository.findByIdUser(event.getIdRequester()) ;
+
+        notificationService.notifyRequesterOfApproval1(requester,offerer);
+        return true ;
+    }
+    public boolean SendMail2(calendarEvent event ) {
+        User offerer = userRepository.findByIdUser(event.getIdOfferer()) ;
+        User requester = userRepository.findByIdUser(event.getIdRequester()) ;
+
+        notificationService.notifyRequesterOfRefusal(requester,offerer);
+        return true ;
+    }
+
+
     public boolean acceptRequest(long offerId, long requestId) {
         System.out.println("aaaaaaa");
 
@@ -108,8 +123,6 @@ public class CollocationOfferServices {
         // Initialize the start and end times for the new external event
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.set(Calendar.HOUR_OF_DAY, 9); // Set to 9 AM
-        calendar.set(Calendar.MINUTE, 0);
         Date start = calendar.getTime();
         calendar.setTime(start);
         System.out.println("test" + start);
@@ -117,29 +130,27 @@ public class CollocationOfferServices {
 
         Date end = calendar.getTime();
 
-        boolean conflictFound = false; // Initialize conflictFound to false
+        boolean conflictFound = true; // Initialize conflictFound to true
 
-        // Check for conflicts with existing events
-        while (!conflictFound) { // Continue loop until conflictFound is false
+        while (conflictFound) { // Continue loop until conflictFound is false
+            conflictFound = false; // Reset conflictFound for each iteration
             for (calendarEvent event : userCalendarEvents) {
                 if ((event.getStart().before(end) && event.getEnd().after(start)) ||
                         (event.getStart().after(start) && event.getEnd().before(end)) ||
                         (event.getStart().before(start) && event.getEnd().after(end)) ||
                         (event.getStart().equals(start) && event.getEnd().equals(end))) {
                     // Found a conflict with an existing event
+                    conflictFound = true;
+                    // Fix the time
+                    start = event.getEnd(); // Update the start time to the end time of the conflicting event
+                    calendar.setTime(start);
                     calendar.add(Calendar.HOUR_OF_DAY, 1); // Add 1 hour to the start time
-                    start = calendar.getTime(); // Update the start time
-                    System.out.println("dfsdfdsf" + start);
-                    calendar.add(Calendar.HOUR_OF_DAY, 1); // Add 1 hour to the start time
-                    end =calendar.getTime() ;
-                    conflictFound = true; // Set conflictFound to true
-
+                    end = calendar.getTime(); // Update the end time
+                    break; // Exit the loop after fixing the time for the current conflicting event
                 }
-
             }
         }
 
-        // Set the end time to 1 hour after the start time
         System.out.println("dtest" + start);
         calendar.setTime(start);
         calendar.add(Calendar.HOUR_OF_DAY, 1);
@@ -148,12 +159,22 @@ public class CollocationOfferServices {
         // Create the new external event
         calendarEvent externalEvent = new calendarEvent();
         externalEvent.setTitle("Accepted Request Event");
-        User offerer=collocationOffer.getUser();
         externalEvent.setStart(start);
         externalEvent.setEnd(end);
-        externalEvent.setRequester(collocationRequest.getUser().getFirstName() + collocationRequest.getUser().getLastName());
-        externalEvent.setOfferer(offerer.getFirstName() + offerer.getLastName());
 
+
+        User requester = collocationRequest.getUser() ;
+        User offerer=collocationOffer.getUser();
+        externalEvent.setRequester(requester.getFirstName() +' '+ requester.getLastName());
+        externalEvent.setOfferer(offerer.getFirstName() +' ' + offerer.getLastName());
+        externalEvent.setQrCodeOfferer(offerer.getFirstName() +' ' + offerer.getLastName() + '\n' + offerer.getEmail() + '\n' + offerer.getPhoneNumber());
+        externalEvent.setQrCodeOfferer(offerer.getFirstName() +' ' + requester.getLastName() + '\n' + requester.getEmail() + '\n' + requester.getPhoneNumber());
+        externalEvent.setIdRequester(requester.getIdUser());
+        externalEvent.setIdOfferer(offerer.getIdUser());
+        externalEvent.setCollocationOfferId(collocationOffer.getIdCollocationOffer());
+        externalEvent.setIdCollocationRequest(collocationRequest.getIdCollocationRequest());
+        Resizable resizable = new Resizable() ;
+        externalEvent.setResizable(resizable);
         List<User> users = new ArrayList<>();
         users.add(collocationOffer.getUser());
         users.add(collocationRequest.getUser());
@@ -161,11 +182,6 @@ public class CollocationOfferServices {
 
         calendarEventRepository.save(externalEvent);
         System.out.println("External Event created");
-
-        // Update the overall available places for the collocation offer
-        collocationOffer.setAvailablePlaces(availablePlaces - requestedPlaces);
-        collocationOfferRepository.save(collocationOffer);
-        System.out.println("Offer saved");
 
         return true;
     }

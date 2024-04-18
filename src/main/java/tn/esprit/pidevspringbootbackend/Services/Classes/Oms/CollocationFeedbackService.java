@@ -44,13 +44,17 @@ public class CollocationFeedbackService {
 
         // Add the feedback to the offer's feedback list
         collocationOffer.getCollocationFeedbacks().add(collocationFeedback);
-
-
-        // Save the updated offer with the new feedback
+        List<CollocationFeedback> feedbacks = collocationOffer.getCollocationFeedbacks();
+        double totalRating = 0.0;
+        int totalFeedbacks = feedbacks.size();
+        for (CollocationFeedback feedback : feedbacks) {
+            totalRating += feedback.getRating();
+        }
+        double averageRating = totalRating / totalFeedbacks;
+        collocationOffer.setAverageRating(averageRating);
         collocationOfferRepository.save(collocationOffer);
 
 
-        // Save the feedback
         return collocationFeedbackRepository.save(collocationFeedback);
     }
 

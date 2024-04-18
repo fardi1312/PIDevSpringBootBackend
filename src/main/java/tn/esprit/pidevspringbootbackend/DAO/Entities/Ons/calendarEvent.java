@@ -2,6 +2,7 @@ package tn.esprit.pidevspringbootbackend.DAO.Entities.Ons;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Null;
 import lombok.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 
@@ -23,23 +24,29 @@ public class calendarEvent {
 
     private String title;
     private  String Requester;
+    private String QrCodeOfferer;
+    private String QrCodeRequester;
     private  String Offerer ;
-    @Column(length = 1024) // Change 1024 to your desired length
-
-    private byte[] qrCodeOfferer;
-    @Column(length = 1024) // Change 1024 to your desired length
-
-    private byte[] qrCodeRequester;
-
-
+    boolean draggable = true;
+    private long idOfferer;
+    private long idRequester;
+    private long idCollocationRequest;
+    private Boolean fixedOfferer=null;
+    private Boolean fixedRequester= null;
     @Temporal(TemporalType.TIMESTAMP)
     private Date start;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date end;
-    @JsonIgnore
+    private long collocationOfferId ;
+
     @ManyToMany
     private List<User> users = new ArrayList<>();
+    @Embedded
+    private Resizable resizable ;
+    private Boolean acceptRenting ;
+    private Boolean acceptRenter ;
 
 
 }
+

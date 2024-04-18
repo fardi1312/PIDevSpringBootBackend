@@ -7,6 +7,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationRequestService;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.calendarEvent ;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,7 @@ public class CollocationOfferRest {
             return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<CollocationOffer> getCollocationOfferById(@PathVariable long id) {

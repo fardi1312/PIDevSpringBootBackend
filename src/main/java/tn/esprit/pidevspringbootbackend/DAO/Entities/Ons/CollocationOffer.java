@@ -29,6 +29,7 @@ public class CollocationOffer {
     @JsonManagedReference
     private List<RoomDetails> roomDetailsList;
     private int availablePlaces ;
+    private double averageRating ;
     private Date dateRent ;
     private Date dateOffer ;
     private Gender gender ;

@@ -1,4 +1,4 @@
-package tn.esprit.pidevspringbootbackend.Controllers.Oms;
+package tn.esprit.pidevspringbootbackend.RestControllers.Oms;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.calendarEvent;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CalendarEventService;
+import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
+import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.EmailService;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -16,7 +18,10 @@ public class CalendarEventController {
 
     @Autowired
     private CalendarEventService calendarEventService;
-
+    @Autowired
+    private CollocationOfferServices collocationOfferServices ;
+    @Autowired
+    private EmailService emailService ;
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<calendarEvent>> getAllCalendarEventsByUser(@PathVariable("userId") long userId) {
         List<calendarEvent> events = calendarEventService.getAllCalendarEventsByUser(userId);
@@ -37,6 +42,40 @@ public class CalendarEventController {
             return ResponseEntity.notFound().build();
         }
     }
+    @PostMapping("/acceptRenting")
+    public calendarEvent acceptRenting(@RequestBody calendarEvent event) {
+        return calendarEventService.acceptRenting(event);
+    }
+
+    @PostMapping("/send-mail")
+    public ResponseEntity<String> sendMail1(@RequestBody calendarEvent event) {
+
+        boolean success = collocationOfferServices.SendMail1(event);
+        if (success) {
+            return new ResponseEntity<>("Email sent successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PostMapping("/send-mail-refusal")
+    public ResponseEntity<String> sendMail(@RequestBody calendarEvent event) {
+
+        boolean success = collocationOfferServices.SendMail2(event);
+        if (success) {
+            return new ResponseEntity<>("Email sent successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PostMapping("/acceptRenter")
+    public calendarEvent acceptRenter(@RequestBody calendarEvent event) {
+        return calendarEventService.acceptRenter(event);
+    }
+
 
 
     @PostMapping("/user/{userId}")
