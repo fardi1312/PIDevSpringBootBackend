@@ -24,10 +24,10 @@ public class Club {
     private String name ;
     private String description ;
     @OneToOne
-    private User president ;
-    @OneToMany
-    private List<User> members = new ArrayList<>();
+    private User president;
 
+    @OneToMany(mappedBy = "club")
+    private List<User> members = new ArrayList<>();
 
 
 
