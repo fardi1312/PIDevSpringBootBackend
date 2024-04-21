@@ -391,6 +391,10 @@ public class ServicesCarpooling implements IServiceCarpooling {
         User u = repoUser.findById(idu).orElse(null);
         PointCount pco = u.getPointCount();
 
+        double pointsDeFidelite = pcn / 20; // Exemple: 1 point de fidélité pour 20 points achetés
+        u.setPointdefidelte((long) (u.getPointdefidelte() + pointsDeFidelite));
+
+
         pco.setNbPoint(pcn+pco.getNbPoint());
 
         return  repoPointCount.save(pco);

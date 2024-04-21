@@ -124,6 +124,8 @@ public class User implements UserDetails {
 
     @OneToOne
     CarpoolingPreferences carpoolingPreferences;
+    private long pointdefidelte;
+
 
 
     public void setBirthDate(Date birthDate) {

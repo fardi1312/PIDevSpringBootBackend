@@ -104,10 +104,10 @@ public class CarpoolingController {
     }
 
     @PostMapping("/updatePoint/{pcn}")
-    public PointCount updatePoint(@PathVariable("pcn") Long pcn) {
+    public PointCount updatePoint(@RequestParam long userId,@PathVariable("pcn") Long pcn) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUserByEmail(authentication.getName());
-        return iServiceCarpooling.updatePoint(user.getIdUser(), pcn);
+        return iServiceCarpooling.updatePoint(userId, pcn);
     }
 
     @GetMapping("/search-carpooling-offers/{date}/{price}")
