@@ -8,6 +8,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Notification;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,4 +19,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findNotificationsByReceiverAndIsReadIsFalse(User receiver);
     void deleteNotificationByOwningPost(Post owningPost);
     void deleteNotificationByOwningComment(Comment owningComment);
+
+    List<Notification> findByDateCreatedBefore(Date oneHourAgo);
 }

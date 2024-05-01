@@ -44,4 +44,7 @@ public interface IPostService {
     List<UserResponse> getFollowingUsersPaginate(Long userId, Integer page, Integer size);
 
     String getPhotoUrlPostbyIdPost(Long postId);
+
+    //getAllPosts
+    List<Post> getAllPosts();
 }

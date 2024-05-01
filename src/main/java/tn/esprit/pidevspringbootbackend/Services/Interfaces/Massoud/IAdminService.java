@@ -5,6 +5,7 @@ import tn.esprit.pidevspringbootbackend.DTO.Massoud.SignupDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UserDTO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +21,6 @@ public interface IAdminService {
     UserDTO createAdmin(SignupDTO signupDTO);
 
     User updateAdminInfo(User user, UpdateProfilDTO updateProfilDTO);
-
 
 
 }

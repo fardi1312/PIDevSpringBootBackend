@@ -528,8 +528,11 @@ public class PostService implements IPostService {
 
 
 
-
-
+//getAllPosts
+   @Override
+    public List<Post> getAllPosts() {
+        return postRepository.findAll();
+    }
 
 
 }

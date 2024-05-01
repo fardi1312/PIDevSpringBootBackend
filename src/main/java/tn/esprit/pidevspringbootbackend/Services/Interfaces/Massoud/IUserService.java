@@ -1,4 +1,5 @@
 package tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Comment;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
@@ -35,4 +36,15 @@ public interface IUserService {
     UserResponse userToUserResponse(User user);
 
     User getAuthenticatedUser();
+
+
+    void requestAccountVerification(String subscriptionType);
+
+    String generateVerificationToken();
+
+
+    boolean isAccountVerified();
+
+    //isAccountVerifiedByidUser
+    boolean isAccountVerifiedByidUser(Long userId);
 }

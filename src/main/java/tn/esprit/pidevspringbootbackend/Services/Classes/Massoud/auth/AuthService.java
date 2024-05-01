@@ -64,12 +64,6 @@ public class AuthService implements IAuthService {
         userRepository.save(user);
         return true;
     }
-
-
-
-
-
-
     @Override
     public UserDTO createUserFromOAuth2(OAuth2User oauth2User) {
         String name = oauth2User.getAttribute("name");
