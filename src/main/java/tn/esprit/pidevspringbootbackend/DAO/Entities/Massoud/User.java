@@ -179,6 +179,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
     private List<Comment> comments;
 
+
+
     @JsonIgnore
     @ManyToMany(mappedBy = "likeList")
     private List<Post> likedPosts = new ArrayList<>();

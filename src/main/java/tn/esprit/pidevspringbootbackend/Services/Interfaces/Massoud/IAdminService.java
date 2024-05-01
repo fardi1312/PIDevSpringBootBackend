@@ -23,4 +23,5 @@ public interface IAdminService {
     User updateAdminInfo(User user, UpdateProfilDTO updateProfilDTO);
 
 //test push and pull and merge
+
 }
