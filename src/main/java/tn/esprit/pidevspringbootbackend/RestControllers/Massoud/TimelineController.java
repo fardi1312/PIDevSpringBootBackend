@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Tag;
 import tn.esprit.pidevspringbootbackend.DAO.Response.PostResponse;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IPostService;
@@ -35,5 +36,12 @@ public class TimelineController {
     public ResponseEntity<?> getTimelineTags() {
         List<Tag> timelineTags = tagService.getTimelineTags();
         return new ResponseEntity<>(timelineTags, HttpStatus.OK);
+    }
+
+    //getAllPosts
+    @GetMapping("/allPosts")
+    public ResponseEntity<?> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 }

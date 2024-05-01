@@ -6,26 +6,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Role;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingOffer;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.CarpoolingRequest;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.PointCount;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Massoud.RoleType;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.RoleRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
-import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationOfferRepository;
-import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationRequestRepository;
-import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoCarpoolingOffer;
-import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoCarpoolingRequest;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoPointCount;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.SignupDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UserDTO;
-import tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.email.EmailService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IAdminService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IEmailService;
-import tn.esprit.pidevspringbootbackend.UserConfig.exception.UserNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,6 +40,7 @@ public class AdminService implements IAdminService {
     public void deleteUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        repoPointCount.delete(user.getPointCount());
         userRepository.delete(user);
     }
 
@@ -146,5 +137,8 @@ public class AdminService implements IAdminService {
         user.setPhoneNumber(updateProfilDTO.getPhoneNumber());
         return userRepository.save(user);
     }
+
+
+
 
 }

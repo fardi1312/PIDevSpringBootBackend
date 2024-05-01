@@ -211,4 +211,29 @@ public class UserController {
     }
 
 
+
+    //verifyAccount
+    @PostMapping("/verify")
+    public ResponseEntity<?> requestAccountVerification(@RequestBody Map<String, String> requestBody) {
+        String subscriptionType = requestBody.get("subscriptionType");
+        userService.requestAccountVerification(subscriptionType);
+        return ResponseEntity.ok().build();
+    }
+
+    //isAccountVerified
+    @GetMapping("/isverify")
+    public ResponseEntity<?> isAccountVerified() {
+        boolean isVerified = userService.isAccountVerified();
+        return ResponseEntity.ok(isVerified);
+    }
+
+    //isAccountVerifiedByidUser
+    @GetMapping("/isverifybyid/{userId}")
+    public ResponseEntity<?> isAccountVerifiedByidUser(@PathVariable("userId") Long userId) {
+        boolean isVerified = userService.isAccountVerifiedByidUser(userId);
+        return ResponseEntity.ok(isVerified);
+    }
+
+
+
 }

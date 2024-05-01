@@ -10,9 +10,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.AccountVerificationToken;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Comment;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.PointCount;
+import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.AccountVerificationTokenRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoPointCount;
 import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
@@ -27,6 +30,7 @@ import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileNamingUtil;
 import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,6 +53,9 @@ public class UserService implements IUserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private IEmailService emailService;
+    @Autowired
+    private AccountVerificationTokenRepository accountVerificationTokenRepository;
+
 
 
     @Override
@@ -221,6 +228,85 @@ public class UserService implements IUserService {
     public final User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return getUserByEmail(authentication.getName());
+    }
+///////////////////////////////////////////////
+
+
+
+
+    @Override
+    public void requestAccountVerification(String subscriptionType) {
+        User user = getAuthenticatedUser();
+
+        double pointsNeeded;
+        switch (subscriptionType) {
+            case "one_year":
+                pointsNeeded = 160;
+                break;
+            case "six_months":
+                pointsNeeded = 90;
+                break;
+            case "one_month":
+                pointsNeeded = 20;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid subscription type");
+        }
+
+        PointCount pointCount = user.getPointCount();
+        if (pointCount.getNbPoint() >= pointsNeeded) {
+            String token = generateVerificationToken();
+            LocalDateTime expiryDate = LocalDateTime.now().plusDays(1); // Expire dans 1 jour
+            AccountVerificationToken verificationToken = new AccountVerificationToken();
+            verificationToken.setToken(token);
+            verificationToken.setUser(user);
+            verificationToken.setExpiryDate(expiryDate);
+            accountVerificationTokenRepository.save(verificationToken);
+            pointCount.setNbPoint(pointCount.getNbPoint() - pointsNeeded);
+            repoPointCount.save(pointCount);
+        } else {
+            throw new InvalidOperationException("Insufficient points to request account verification");
+        }
+    }
+
+    @Override
+    public String generateVerificationToken() {
+        String allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        int tokenLength = 10;
+        StringBuilder token = new StringBuilder();
+        for (int i = 0; i < tokenLength; i++) {
+            int randomIndex = (int) (Math.random() * allowedChars.length());
+            token.append(allowedChars.charAt(randomIndex));
+        }
+        return token.toString();
+    }
+
+
+    // getisVerfied
+    @Override
+    public boolean isAccountVerified() {
+        User user = getAuthenticatedUser();
+        AccountVerificationToken verificationToken = accountVerificationTokenRepository.findByUser(user);
+        if (verificationToken != null) {
+            LocalDateTime expiryDate = verificationToken.getExpiryDate();
+            LocalDateTime currentDate = LocalDateTime.now();
+            return expiryDate.isAfter(currentDate); // Vérifie si le token est toujours valide
+        }
+        return false;
+    }
+
+
+    //isAccountVerifiedByidUser
+    @Override
+    public boolean isAccountVerifiedByidUser(Long userId) {
+        User user = getUserById(userId);
+        AccountVerificationToken verificationToken = accountVerificationTokenRepository.findByUser(user);
+        if (verificationToken != null) {
+            LocalDateTime expiryDate = verificationToken.getExpiryDate();
+            LocalDateTime currentDate = LocalDateTime.now();
+            return expiryDate.isAfter(currentDate); // Vérifie si le token est toujours valide
+        }
+        return false;
     }
 
 
