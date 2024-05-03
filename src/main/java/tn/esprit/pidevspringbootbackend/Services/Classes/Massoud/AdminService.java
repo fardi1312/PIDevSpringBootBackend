@@ -138,6 +138,9 @@ public class AdminService implements IAdminService {
         return userRepository.save(user);
     }
 
+    //update password by email
+
+
 
 
 

@@ -15,4 +15,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findPostsByPostTags(Tag tag, Pageable pageable);
 
     List<Post> findPostsByAuthorIdUserIn(List<Long> userIds, Pageable pageable);
+
+    List<Post> findByAuthor(User connectedUser);
 }

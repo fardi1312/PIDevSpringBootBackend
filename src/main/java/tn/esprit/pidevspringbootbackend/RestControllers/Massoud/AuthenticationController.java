@@ -15,7 +15,9 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.AuthenticationDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.AuthenticationResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
+import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordForgetDTO;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.jwt.UsersDetailsService;
+import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IAdminService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IEmailService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 import tn.esprit.pidevspringbootbackend.UserConfig.exception.UserNotFoundException;
@@ -30,6 +32,7 @@ public class AuthenticationController {
     private final UsersDetailsService currentUserService;
     private final IUserService userService;
     private final IEmailService emailService;
+    private  final IAdminService adminService;
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationDTO authenticationDTO) {
@@ -94,4 +97,8 @@ public class AuthenticationController {
         User user = userService.getUserById(idUser);
         return ResponseEntity.ok(user);
     }
+
+
+    //void updatePasswordForget(UpdatePasswordForgetDTO updatePasswordDTO)
+
 }

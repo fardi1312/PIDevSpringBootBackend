@@ -33,16 +33,15 @@ public class Comment {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date dateLastModified;
 
+
     @ManyToOne
     @JoinColumn(name = "author_id") // Customizing the join column
     private User author;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "comment_likes",
