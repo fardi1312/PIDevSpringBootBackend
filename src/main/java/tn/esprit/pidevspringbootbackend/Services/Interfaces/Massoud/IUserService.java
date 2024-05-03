@@ -7,6 +7,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateEmailDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
+import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordForgetDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
 
 import java.util.List;
@@ -23,6 +24,10 @@ public interface IUserService {
     User updateCoverPhoto(User user, MultipartFile coverPhoto) ;
     String getPhotoUrlForConnectedUser(User connectedUser);
     String getCoverPhotoUrlForConnectedUser(User connectedUser);
+
+
+    void updatePasswordForget(UpdatePasswordForgetDTO updatePasswordDTO);
+
     User updateEmail(User user, UpdateEmailDTO updateEmailDto);
     boolean verifyEmail(String email);
 

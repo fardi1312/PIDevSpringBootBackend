@@ -5,9 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Comment;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Post;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByPost(Post post, Pageable pageable);
+
+    List<Comment> findByAuthor(User connectedUser);
 }

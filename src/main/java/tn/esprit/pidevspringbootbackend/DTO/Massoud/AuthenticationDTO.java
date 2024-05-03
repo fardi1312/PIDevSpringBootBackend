@@ -6,7 +6,6 @@ import lombok.Data;
 public class AuthenticationDTO {
 
     private String email;
-
     private String password;
     private boolean emailVerified;
 

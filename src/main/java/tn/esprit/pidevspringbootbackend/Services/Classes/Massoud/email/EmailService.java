@@ -75,12 +75,17 @@ public class EmailService implements IEmailService {
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
             messageHelper.setTo(to);
             messageHelper.setSubject("Password Reset Request");
-            messageHelper.setText("Your new password is: " + newPassword);
+            String resetUrl = "http://localhost:4200/forgotupd/" + to;
+            String emailContent = "<p>Your new password is: " + newPassword + "</p>"
+                    + "<p>To reset your password, please click the button below:</p>"
+                    + "<a href=\"" + resetUrl + "\"><button style=\"padding:10px; background-color:#007bff; color:#fff; border:none; border-radius:5px; cursor:pointer;\">Reset Password</button></a>";
+            messageHelper.setText(emailContent, true);
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send password reset email", e);
         }
     }
+
 
     public void sendEmail1(String toAdress, String subject, String body) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();

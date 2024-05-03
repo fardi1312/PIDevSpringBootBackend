@@ -13,7 +13,9 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Response.PostResponse;
 import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
+import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordForgetDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
+import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IAdminService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IPostService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 import tn.esprit.pidevspringbootbackend.UserConfig.exception.UserNotFoundException;
@@ -27,6 +29,8 @@ import java.util.Map;
 public class UserController {
     private final IUserService userService;
     private final IPostService postService;
+    private  final IAdminService adminService;
+
 
     @GetMapping("")
     public ResponseEntity<?> authenticatedUser(Authentication authentication) {
@@ -110,7 +114,7 @@ public class UserController {
                                                  @RequestBody UpdatePasswordDTO updatePasswordDTO) {
         try {
             User user = userService.getUserByEmail(authentication.getName());
-            userService.updatePassword(user, updatePasswordDTO);
+            adminService.enableUserAccount(user.getEmail());
             return ResponseEntity.ok("Password updated successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -169,6 +173,12 @@ public class UserController {
     public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
         User authUser = userService.getAuthenticatedUser();
         User targetUser = userService.getUserById(userId);
+
+        // Vérifier si l'utilisateur cible existe
+        if (targetUser == null) {
+            throw new UserNotFoundException("User with ID " + userId + " not found");
+        }
+
         UserResponse userResponse = UserResponse.builder()
                 .user(targetUser)
                 .followedByAuthUser(targetUser.getFollowerUsers().contains(authUser))
@@ -234,6 +244,19 @@ public class UserController {
         return ResponseEntity.ok(isVerified);
     }
 
+////////////////////////////////////////
+
+//updatePasswordForget
+
+    @PostMapping("/update-password-forget")
+    public ResponseEntity<String> updatePasswordForget(@RequestBody UpdatePasswordForgetDTO updatePasswordDTO) {
+        try {
+            userService.updatePasswordForget(updatePasswordDTO);
+            return ResponseEntity.ok("Password updated successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update password!");
+        }
+    }
 
 
 }

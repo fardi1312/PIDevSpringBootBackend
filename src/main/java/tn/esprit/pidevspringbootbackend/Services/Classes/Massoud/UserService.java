@@ -21,6 +21,7 @@ import tn.esprit.pidevspringbootbackend.DAO.Repositories.SM.RepoPointCount;
 import tn.esprit.pidevspringbootbackend.DAO.Response.UserResponse;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateEmailDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordDTO;
+import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdatePasswordForgetDTO;
 import tn.esprit.pidevspringbootbackend.DTO.Massoud.UpdateProfilDTO;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IEmailService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
@@ -63,6 +64,7 @@ public class UserService implements IUserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
         String newPassword = RandomStringUtils.randomAlphanumeric(10);
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setEnabled(false);
         userRepository.save(user);
         emailService.sendResetPasswordEmail(email, newPassword);
     }
@@ -168,6 +170,18 @@ public class UserService implements IUserService {
         user.setPassword(encodedPassword);
         userRepository.save(user);
     }
+
+    @Override
+    public void updatePasswordForget(UpdatePasswordForgetDTO updatePasswordDTO) {
+        String encodedPassword = passwordEncoder.encode(updatePasswordDTO.getNewPassword());
+        User user = userRepository.findByEmail(updatePasswordDTO.getEmail()).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setEnabled(true);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+    }
+
+
     @Override
     public User updateEmail(User user, UpdateEmailDTO updateEmailDto) {
         if (!passwordEncoder.matches(updateEmailDto.getPassword(), user.getPassword())) {
