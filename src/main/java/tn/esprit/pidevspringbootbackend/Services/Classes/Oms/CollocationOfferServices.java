@@ -1,16 +1,20 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.Oms;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Null;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.*;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Request;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.Resizable ;
+import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileNamingUtil;
+import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
+
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -29,6 +33,15 @@ public class CollocationOfferServices {
     private eventRepository calendarEventRepository;
     @Autowired
     private EmailService notificationService ;
+@Autowired
+    Environment environment;
+@Autowired
+    FileNamingUtil fileNamingUtil;
+@Autowired
+    FileUploadUtil utils;
+
+
+
     public CollocationOffer saveCollocationOffer(CollocationOffer collocationOffer) {
         return collocationOfferRepository.save(collocationOffer);
     }
@@ -120,7 +133,6 @@ public class CollocationOfferServices {
         // Find the user's existing calendar events
         List<calendarEvent> userCalendarEvents = calendarEventRepository.findByUsers(collocationOffer.getUser());
 
-        // Initialize the start and end times for the new external event
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         Date start = calendar.getTime();
@@ -167,12 +179,11 @@ public class CollocationOfferServices {
         User offerer=collocationOffer.getUser();
         externalEvent.setRequester(requester.getFirstName() +' '+ requester.getLastName());
         externalEvent.setOfferer(offerer.getFirstName() +' ' + offerer.getLastName());
-        externalEvent.setQrCodeOfferer(offerer.getFirstName() +' ' + offerer.getLastName() + '\n' + offerer.getEmail() + '\n' + offerer.getPhoneNumber());
-        externalEvent.setQrCodeOfferer(offerer.getFirstName() +' ' + requester.getLastName() + '\n' + requester.getEmail() + '\n' + requester.getPhoneNumber());
         externalEvent.setIdRequester(requester.getIdUser());
         externalEvent.setIdOfferer(offerer.getIdUser());
         externalEvent.setCollocationOfferId(collocationOffer.getIdCollocationOffer());
         externalEvent.setIdCollocationRequest(collocationRequest.getIdCollocationRequest());
+        externalEvent.setType(true);
         Resizable resizable = new Resizable() ;
         externalEvent.setResizable(resizable);
         List<User> users = new ArrayList<>();
@@ -256,6 +267,37 @@ public class CollocationOfferServices {
         user.setCollocationOffers(userOffers);
 
         return collocationOfferRepository.save(collocationOffer);
+    }
+
+
+    public String getImageUrlForCovByID(Long id) {
+        CollocationOffer coo = collocationOfferRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("CarpoolingOffer not found with id: " + id));
+        String baseUrl = environment.getProperty("export.collocation.images");
+        String ccImage = coo.getImageCollocation();
+
+        if (ccImage != null && !ccImage.isEmpty()) {
+
+            System.err.println(baseUrl + ccImage);
+            return baseUrl + ccImage;
+        }
+
+        return null;
+    }
+    public CollocationOffer updatePostImage(Long idO, MultipartFile image) {
+        CollocationOffer coo = collocationOfferRepository.findById(idO).orElseThrow(() -> new EntityNotFoundException("CarpoolingOffer not found with id: " + idO));
+
+        try {
+            if (image != null && !image.isEmpty() && image.getSize() > 0) {
+                String uploadDir = environment.getProperty("upload.collocation.images");
+                String newPhotoName = fileNamingUtil.nameFile(image);
+                coo.setImageCollocation(newPhotoName);
+
+                utils.saveNewFile(uploadDir, newPhotoName, image);
+            }
+            return collocationOfferRepository.save(coo);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update CC photo", e);
+        }
     }
 
 

@@ -11,11 +11,8 @@ import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationOfferRep
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationRequestRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.eventRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.calendarEvent;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
-import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.QrCodeServices;
 
 import javax.imageio.ImageIO;
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -98,6 +95,7 @@ public class CalendarEventService {
                     existingEvent.setFixedOfferer(event.getFixedOfferer());
                     existingEvent.setFixedRequester(event.getFixedRequester());
                     existingEvent.setTitle(event.getTitle());
+                    existingEvent.setMeetingLink(event.getMeetingLink());
                     existingEvent.setResizable(event.getResizable());
                     existingEvent.setDraggable(event.isDraggable());
                     existingEvent.setAcceptRenter(event.getAcceptRenter());

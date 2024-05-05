@@ -64,7 +64,6 @@ public class CollocationFeedbackService {
         existingCollocationFeedback.setFeedbackDescription(updatedCollocationFeedback.getFeedbackDescription());
         existingCollocationFeedback.setRating(updatedCollocationFeedback.getRating());
         existingCollocationFeedback.setCollocationOffer(updatedCollocationFeedback.getCollocationOffer());
-        existingCollocationFeedback.setUsers(updatedCollocationFeedback.getUsers());
 
         return collocationFeedbackRepository.save(existingCollocationFeedback);
     }

@@ -24,8 +24,6 @@ public class calendarEvent {
 
     private String title;
     private  String Requester;
-    private String QrCodeOfferer;
-    private String QrCodeRequester;
     private  String Offerer ;
     boolean draggable = true;
     private long idOfferer;
@@ -35,10 +33,14 @@ public class calendarEvent {
     private Boolean fixedRequester= null;
     @Temporal(TemporalType.TIMESTAMP)
     private Date start;
+    private long idClub ;
+    private String meetingLink ;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date end;
     private long collocationOfferId ;
+    private boolean type ;
+    private long memberShipApplicationId ; 
 
     @ManyToMany
     private List<User> users = new ArrayList<>();

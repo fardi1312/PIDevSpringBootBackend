@@ -3,6 +3,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
@@ -134,6 +135,19 @@ public class CollocationOfferRest {
             return ResponseEntity.notFound().build();
         }
     }
+    @PostMapping("/uploadImage/{id}")
+    public CollocationOffer  updatenImage(@PathVariable("id") Long idCC, @RequestParam("image") MultipartFile image) {
+        return collocationOfferServices.updatePostImage(idCC, image);
+    }
+
+    @GetMapping("/getImage/{id}")
+    public String getCompetitionImage(@PathVariable("id") Long idCc){
+        return collocationOfferServices.getImageUrlForCovByID(idCc);
+    }
+
+
+
+
 
     }
 

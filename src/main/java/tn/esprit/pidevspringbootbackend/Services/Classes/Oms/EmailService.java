@@ -15,9 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 
-import java.time.LocalDate;
-import java.util.Date;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -235,4 +232,6 @@ private String buildApprovalEmailContentScheduler(User requester,CollocationOffe
                 "<a style=\"display: inline-block; padding: 10px 20px; margin-bottom: 30px; text-decoration: none; background: #3f51b5; font-size: 16px; border-radius: 3px; color: #ffffff;\" href=\"" + url + "\">" + buttonText + "</a>" +
                 "</div>";
     }
+
+
 }

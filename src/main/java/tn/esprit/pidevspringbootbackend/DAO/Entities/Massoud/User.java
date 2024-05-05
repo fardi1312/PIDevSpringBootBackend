@@ -109,7 +109,7 @@ public class User  {
     @OneToOne(mappedBy = "user")
     private CollocationPreferences collocationPreferences ;
 
-    @ManyToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "user")
     private List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
     @OneToOne
@@ -126,8 +126,16 @@ public class User  {
 
     @OneToMany(mappedBy = "usera")
     private List<Inscription> inscriptions;
-    @ManyToOne
+    @OneToOne(mappedBy = "president")
+    @JsonIgnore
     private Club club ;
+    @OneToMany(mappedBy = "member")
+    @JsonIgnore
+    private List<ClubMembership> clubMembership ;
+    @OneToMany (mappedBy ="user" )
+    @JsonIgnore
+    private List<MemberShipApplication> memberShipApplications ;
+
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
