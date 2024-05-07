@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
@@ -86,8 +87,7 @@ public class CollocationOfferRest {
 
     @PostMapping("/offers/create")
     public ResponseEntity<CollocationOffer> createCollocationOffer(
-            @RequestBody CollocationOffer collocationOffer,
-            @RequestParam long userId) {
+            @RequestBody CollocationOffer collocationOffer) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUserByEmail(authentication.getName());
         CollocationOffer createdOffer = collocationOfferServices.saveCollocationOfferAndAssociateUser(collocationOffer, user.getIdUser());
@@ -112,10 +112,7 @@ public class CollocationOfferRest {
         List<CollocationOffer> offers = collocationOfferServices.search(governorate, houseType, availablePlaces, dateRent);
         return ResponseEntity.ok(offers);
     }
-    @GetMapping("getCollocationImage/{id}")
-    public String getCompetitionImage(@PathVariable("id") int idCollocation){
-        return collocationOfferServices.getImageUrlForCompetitionByID(idCollocation);
-    }
+
 
 
     @GetMapping("/matchuser/{userId}")
@@ -138,6 +135,24 @@ public class CollocationOfferRest {
             return ResponseEntity.notFound().build();
         }
     }
+
+
+
+    @PostMapping("/uploadImage/{id}")
+    public CollocationOffer  updatenImage(@PathVariable("id") Long idCC, @RequestParam("image") MultipartFile image) {
+        return collocationOfferServices.updatePostImage(idCC, image);
+    }
+
+
+
+
+    @GetMapping("/getImage/{id}")
+        public String getCompetitionImage(@PathVariable("id") Long idCc){
+        return collocationOfferServices.getImageUrlForCovByID(idCc);
+    }
+
+
+
 }
 
 

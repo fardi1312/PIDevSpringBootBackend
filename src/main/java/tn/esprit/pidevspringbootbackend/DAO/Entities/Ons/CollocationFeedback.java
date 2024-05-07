@@ -24,7 +24,7 @@ public class CollocationFeedback {
     private int rating;
     @ManyToOne
     private CollocationOffer collocationOffer;
+
     @ManyToOne
     private User user ;
-
 }

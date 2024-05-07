@@ -1,5 +1,6 @@
 package tn.esprit.pidevspringbootbackend.DAO.Entities.SM;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +26,8 @@ public class CarpoolingRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     private Long CarppoolingRequestId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+
     private Date ReservationDate;
     private int NbPlacesAller;
     private int NbPlacesRetour;
@@ -33,7 +36,7 @@ public class CarpoolingRequest {
     private double priceRequeste;
     @Enumerated(EnumType.STRING)
     private CarpoolingType requestType;
-
+private String location;
     @ElementCollection
     private List<Date> DateRetourReserver = new ArrayList<>();
     @ElementCollection

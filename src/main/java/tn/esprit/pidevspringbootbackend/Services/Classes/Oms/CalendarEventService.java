@@ -1,16 +1,19 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.Oms;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationOffer;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.CollocationRequest;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.Resizable;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
+import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationOfferRepository;
+import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.CollocationRequestRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.eventRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.calendarEvent;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
-import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.QrCodeServices;
 
 import javax.imageio.ImageIO;
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,11 +29,18 @@ public class CalendarEventService {
 
     @Autowired
     private UserRepository userService; // Assuming you have a UserService to manage users
+
     @Autowired
-    private QrCodeServices qrCodeServices ;
+    private CollocationOfferRepository collocationOfferRepository ;
+    @Autowired
+    private CollocationRequestRepository collocationRequestRepository ;
+    @Getter
+    public List<String> EmailList = new ArrayList<>()  ;
+    @Autowired
+    EmailServiceAchref emailService ;
 
     public List<calendarEvent> getAllCalendarEventsByUser(long userId) {
-        User user = userService.findById(userId).get();
+        User user = userService.findByIdUser(userId);
         if (user != null) {
             return eventRepository.findByUsers(user);
         }
@@ -38,7 +48,7 @@ public class CalendarEventService {
     }
 
     public calendarEvent getCalendarEventByIdAndUser(long id, long userId) {
-        User user = userService.findById(userId).get();
+        User user = userService.findByIdUser(userId);
         if (user != null) {
             Optional<calendarEvent> optionalEvent = eventRepository.findByIdAndUsers(id, user);
             return optionalEvent.orElse(null);
@@ -52,11 +62,14 @@ public class CalendarEventService {
         users.add(userService.findByIdUser(userId));
         if (users != null) {
             event.setUsers(users);
+            Resizable resizable = new Resizable() ;
+            resizable.setAfterEnd(true);
+            resizable.setBeforeStart(true);
+            event.setResizable(resizable);
             return eventRepository.save(event);
         }
         return null;
     }
-
     public calendarEvent updateCalendarEventForUser(long userId, calendarEvent event) {
         // Fetch the user who is updating the event
         User user = userService.findByIdUser(userId);
@@ -82,9 +95,15 @@ public class CalendarEventService {
                 if (existingEvent != null) {
                     existingEvent.setStart(event.getStart());
                     existingEvent.setEnd(event.getEnd());
-
+                    existingEvent.setFixedOfferer(event.getFixedOfferer());
+                    existingEvent.setFixedRequester(event.getFixedRequester());
                     existingEvent.setTitle(event.getTitle());
-                    // Save the updated event
+                    existingEvent.setMeetingLink(event.getMeetingLink());
+                    existingEvent.setResizable(event.getResizable());
+                    existingEvent.setDraggable(event.isDraggable());
+                    existingEvent.setAcceptRenter(event.getAcceptRenter());
+                    existingEvent.setAcceptRenting(event.getAcceptRenting());
+
                     return eventRepository.save(existingEvent);
 
                 } else {
@@ -98,6 +117,50 @@ public class CalendarEventService {
 
         return null;
     }
+    public calendarEvent acceptRenting(calendarEvent event) {
+        calendarEvent existingEvent = eventRepository.findById(event.getId()).get();
+        Boolean acceptRenter = event.getAcceptRenter();
+        if (acceptRenter !=null && acceptRenter == true) {
+            System.out.println("Entered if ");
+            CollocationOffer collocationOffer = collocationOfferRepository.findById(event.getCollocationOfferId()).get();
+            CollocationRequest collocationRequest = collocationRequestRepository.findById(event.getIdCollocationRequest()).get();
+            collocationOffer.setAvailablePlaces(collocationOffer.getAvailablePlaces() - collocationRequest.getPlaces());
+            eventRepository.delete(existingEvent);
+            collocationOfferRepository.save(collocationOffer);
+            emailService.notifyRequesterOfApproval2(userService.findById(event.getIdOfferer()).get(),userService.findById(event.getIdRequester()).get()) ;
+        }
+
+        existingEvent.setAcceptRenting(true);
+
+        return eventRepository.save(existingEvent);
+    }
+    public calendarEvent acceptRenter(calendarEvent event) {
+        Optional<calendarEvent> optionalEvent = eventRepository.findById(event.getId());
+        if (optionalEvent.isPresent()) {
+            calendarEvent existingEvent = optionalEvent.get();
+            Boolean acceptRenting = existingEvent.getAcceptRenting();
+            if (acceptRenting != null && acceptRenting) {
+                CollocationOffer collocationOffer = collocationOfferRepository.findById(event.getCollocationOfferId()).orElse(null);
+                CollocationRequest collocationRequest = collocationRequestRepository.findById(event.getIdCollocationRequest()).orElse(null);
+                if (collocationOffer != null && collocationRequest != null) {
+                    collocationOffer.setAvailablePlaces(collocationOffer.getAvailablePlaces() - collocationRequest.getPlaces());
+
+                    collocationOfferRepository.save(collocationOffer);
+                    eventRepository.delete(existingEvent);
+                    emailService.notifyRequesterOfApproval2(userService.findById(event.getIdRequester()).get(),userService.findById(event.getIdOfferer()).get()) ;
+
+
+                }
+            }
+            existingEvent.setAcceptRenter(true);
+            return eventRepository.save(existingEvent);
+        } else {
+            // Handle the case when the event is not found
+            return null;
+        }
+    }
+
+
     public static BufferedImage byteArrayToImage(byte[] byteArray) {
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);

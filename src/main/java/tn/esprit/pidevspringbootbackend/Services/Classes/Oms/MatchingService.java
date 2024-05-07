@@ -51,7 +51,7 @@ public class MatchingService {
         List<CollocationOffer> matchingOffers = new ArrayList<>();
         for (CollocationOffer offer : allOffers) {
             int matchPercentage = calculateMatchPercentage(preferences, offer);
-            if (matchPercentage >= 80) { // You can adjust the threshold as needed
+            if (matchPercentage >= 50) { // You can adjust the threshold as needed
                 offer.setMatchPercentage(matchPercentage);
                 matchingOffers.add(offer);
                 if (matchPercentage == 100) {

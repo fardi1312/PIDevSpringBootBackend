@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface CollocationRequestRepository extends JpaRepository<CollocationRequest,Long> {
     List<CollocationRequest> findByUser(User connectedUser);
+
+
 }

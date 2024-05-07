@@ -38,8 +38,9 @@ public class CollocationPreferences {
     private String location;
     @Enumerated(EnumType.STRING)
     private FurnitureCollocation furnitureCollocation ;
-    @OneToOne
+
     @JsonIgnore
+    @OneToOne
     private User user;
 }
 
