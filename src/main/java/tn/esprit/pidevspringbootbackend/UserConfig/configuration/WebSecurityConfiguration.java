@@ -32,10 +32,12 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authRequest -> {
             // Permit all requests for "/signup" and "/authenticate" endpoints
-           // authRequest.requestMatchers("/signup", "/authenticate").permitAll();
+           // authRequest.requestMatchers("/websocket/**").permitAll();
+
             // All other requests require authentication
             authRequest.anyRequest().permitAll();
         });
+
         http.oauth2Login(oauth2 ->
                 oauth2.successHandler((request, response, authentication) ->
                                 response.sendRedirect("/hello"))

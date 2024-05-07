@@ -94,4 +94,14 @@ public class AuthenticationController {
         User user = userService.getUserById(idUser);
         return ResponseEntity.ok(user);
     }
+    @GetMapping("/current-user")
+    public ResponseEntity<User> getCurrentUser() {
+        UserDetails userDetails = currentUserService.getCurrentUser(); // Assuming this method exists
+        if (userDetails != null) {
+            User user = userService.getUserByEmail(userDetails.getUsername());
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

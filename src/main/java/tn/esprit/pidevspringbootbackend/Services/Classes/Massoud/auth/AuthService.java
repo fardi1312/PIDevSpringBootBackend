@@ -1,5 +1,7 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.auth;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -133,5 +135,13 @@ public class AuthService implements IAuthService {
         newUser.setDateLastModified(LocalDateTime.now());
         newUser.setPhoneNumber(null);
         return newUser;
+    }
+    // Method to get the currently authenticated user
+    public User getCurrentAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal();
+        }
+        return null;
     }
 }
