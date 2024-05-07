@@ -1,10 +1,13 @@
 package tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.auth;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.Role;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
+import tn.esprit.pidevspringbootbackend.DAO.Entities.S.Panier9ach;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.SM.PointCount;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Massoud.RoleType;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.RoleRepository;
@@ -15,6 +18,7 @@ import tn.esprit.pidevspringbootbackend.DTO.Massoud.UserDTO;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Massoud.email.EmailService;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IAuthService;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -43,6 +47,8 @@ public class AuthService implements IAuthService {
         pointCount.setNbPoint(0.0);
         newUser.setPointCount(pointCount);
         repoPointCount.save(pointCount);
+
+
         newUser.setPassword(passwordEncoder.encode(signupDTO.getPassword()));
         User createdUser = userRepository.save(newUser);
         emailService.send(createdUser.getEmail(), "Email Verification", emailService.getMsgEmail(createdUser));
@@ -127,5 +133,17 @@ public class AuthService implements IAuthService {
         newUser.setDateLastModified(LocalDateTime.now());
         newUser.setPhoneNumber(null);
         return newUser;
+    }
+
+
+
+
+    // Method to get the currently authenticated user
+    public User getCurrentAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal();
+        }
+        return null;
     }
 }

@@ -44,7 +44,10 @@ public class SubscriptionController {
         if (optionalSubscription.isPresent()) {
             Subscription existingSubscription = optionalSubscription.get();
             existingSubscription.setName(subscriptionDetails.getName());
-            // Set other fields as needed
+            existingSubscription.setDescription(subscriptionDetails.getDescription());
+            existingSubscription.setPrice(subscriptionDetails.getPrice());
+            existingSubscription.setType(subscriptionDetails.getType());
+            existingSubscription.setDuration(subscriptionDetails.getDuration());
             Subscription updatedSubscription = subscriptionService.createSubscription(existingSubscription);
             return ResponseEntity.ok(updatedSubscription);
         } else {

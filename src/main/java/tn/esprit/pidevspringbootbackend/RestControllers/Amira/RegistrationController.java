@@ -21,12 +21,29 @@ public class RegistrationController {
     private IUserService userService;
     @Autowired
     private IRegistrationService iRegistrationService;
-
+/*
     @PostMapping("/add")
     public ResponseEntity<Registration> addInscription(@RequestBody Registration registration) {
         Registration addedRegistration = iRegistrationService.addInscription(registration);
         return new ResponseEntity<>(addedRegistration, HttpStatus.CREATED);
+    }*/
+@PostMapping("/add")
+public ResponseEntity<Registration> addRegistration(@RequestBody Registration registration) {
+    try {
+        // Retrieve the currently authenticated user from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userService.getUserByEmail(authentication.getName());
+
+        // Set the authenticated user to the registration
+        registration.setUser(currentUser);
+
+        // Save the registration
+        Registration addedRegistration = iRegistrationService.addInscription(registration);
+        return new ResponseEntity<>(addedRegistration, HttpStatus.CREATED);
+    } catch (Exception e) {
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
+}
 
     @GetMapping("/all")
     public ResponseEntity<List<Registration>> getAllInscriptions() {
@@ -55,6 +72,24 @@ public class RegistrationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+   /* @PutMapping("update/{id}")
+    public ResponseEntity<Registration> updateInscription(@PathVariable Long id, @RequestBody Registration registration) {
+        // Check if the provided ID matches the ID of the registration entity
+        if (!registration.getId().equals(id)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        // Call the service method to update the registration
+        Registration updatedRegistration = iRegistrationService.updateInscription(registration);
+
+        // Check if the registration was successfully updated
+        if (updatedRegistration != null) {
+            return new ResponseEntity<>(updatedRegistration, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }*/
+
     @PutMapping("update/{id}")
     public ResponseEntity<Registration> updateInscription(@PathVariable Long id, @RequestBody Registration registration) {
         Registration updatedRegistration = iRegistrationService.updateInscription(registration);

@@ -10,11 +10,11 @@ import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.*;
 import tn.esprit.pidevspringbootbackend.DAO.Enumeration.Oms.Request;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Massoud.UserRepository;
 import tn.esprit.pidevspringbootbackend.DAO.Repositories.Oms.*;
-
+import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileNamingUtil;
+import tn.esprit.pidevspringbootbackend.UserConfig.utilFiles.FileUploadUtil;
 
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -33,11 +33,14 @@ public class CollocationOfferServices {
     private ExternalEventRepository externalEventRepository ;
     @Autowired
     private eventRepository calendarEventRepository;
+
     @Autowired
-    NameFile fileNamingUtil;
-    FileUtil utils;
+    private FileUploadUtil utils ;
+    @Autowired
+    private FileNamingUtil fileNamingUtil ;
 
-
+    @Autowired
+    private EmailServiceAchref notificationService ;
 
     public Optional<CollocationOffer> getCollocationOfferById(long id) {
         return collocationOfferRepository.findById(id);
@@ -57,12 +60,24 @@ public class CollocationOfferServices {
     }
 
 
+    public boolean SendMail1(calendarEvent event ) {
+        User offerer = userRepository.findByIdUser(event.getIdOfferer()) ;
+        User requester = userRepository.findByIdUser(event.getIdRequester()) ;
 
+        notificationService.notifyRequesterOfApproval1(requester,offerer);
+        return true ;
+    }
+    public boolean SendMail2(calendarEvent event ) {
+        User offerer = userRepository.findByIdUser(event.getIdOfferer()) ;
+        User requester = userRepository.findByIdUser(event.getIdRequester()) ;
+
+        notificationService.notifyRequesterOfRefusal(requester,offerer);
+        return true ;
+    }
 
     public boolean acceptRequest(long offerId, long requestId) {
         System.out.println("aaaaaaa");
 
-        // Retrieve the collocation offer and request
         CollocationOffer collocationOffer = collocationOfferRepository.findById(offerId).orElse(null);
         CollocationRequest collocationRequest = collocationRequestRepository.findById(requestId).orElse(null);
 
@@ -262,38 +277,45 @@ public class CollocationOfferServices {
 
 
 
-    public CollocationOffer updateCollocationImage(long idCollocation, MultipartFile competitionImage) {
-        CollocationOffer collocationOffer= collocationOfferRepository.findById(idCollocation).get();
-        try {
-            if (competitionImage != null && !competitionImage.isEmpty() && competitionImage.getSize() > 0) {
-                String uploadDir = environment.getProperty("upload.competition.images");
-
-                String newPhotoName = fileNamingUtil.nameFile(competitionImage);
-                collocationOffer.setImageCollocation(newPhotoName);
 
 
 
-                utils.saveNewFile(uploadDir, newPhotoName, competitionImage);
-            }
-            return collocationOfferRepository.save(collocationOffer);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to update competition photo", e);
-        }
-    }
 
-    public String getImageUrlForCompetitionByID(long idCollocation) {
-        CollocationOffer collocationOffer= collocationOfferRepository.findById(idCollocation).get();
-        String baseUrl = environment.getProperty("export.competition.images");
-        String competitionImage = collocationOffer.getImageCollocation();
 
-        if (competitionImage != null && !competitionImage.isEmpty()) {
 
-            System.err.println(baseUrl + competitionImage);
-            return baseUrl + competitionImage;
+    public String getImageUrlForCovByID(Long id) {
+        CollocationOffer coo = collocationOfferRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("CarpoolingOffer not found with id: " + id));
+        String baseUrl = environment.getProperty("export.collocation.images");
+        String ccImage = coo.getImageCollocation();
+
+        if (ccImage != null && !ccImage.isEmpty()) {
+
+            System.err.println(baseUrl + ccImage);
+            return baseUrl + ccImage;
         }
 
         return null;
     }
+
+
+
+    public CollocationOffer updatePostImage(Long idO, MultipartFile image) {
+        CollocationOffer coo = collocationOfferRepository.findById(idO).orElseThrow(() -> new EntityNotFoundException("CarpoolingOffer not found with id: " + idO));
+
+        try {
+            if (image != null && !image.isEmpty() && image.getSize() > 0) {
+                String uploadDir = environment.getProperty("upload.collocation.images");
+                String newPhotoName = fileNamingUtil.nameFile(image);
+                coo.setImageCollocation(newPhotoName);
+
+                utils.saveNewFile(uploadDir, newPhotoName, image);
+            }
+            return collocationOfferRepository.save(coo);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update CC photo", e);
+        }
+    }
+
 
 }
 

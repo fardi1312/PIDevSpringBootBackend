@@ -42,5 +42,23 @@ public interface IServiceCarpooling {
 
     PointCount updatePoint(Long idu, Long pcn);
 
-    List<CarpoolingOffer> getCarpoolingById(long iduser);
+    PointCount updatePointFidelite(Long idu, Long pcn);
+
+    List<CarpoolingOffer> getCarpoolingOfferByIdUser(Long userId);
+
+    List<String> getNameUser(Long idCarpoolingOffer);
+
+    List<CarpoolingRequest> getAllRequestsByOffer(Long offerId);
+
+    List<CarpoolingRequest> findCarpoolingRequestsByUserId(Long userId);
+
+    void removeCarrpooling(Long postId);
+
+    PointCount updateQuizPoint(Long idu);
+
+    double getPointByuser(long idu);
+
+    PointCount convertToPoint(Long userId, double pointFidelite, double pcn);
+
+    List<Object> getAllAccueil();
 }

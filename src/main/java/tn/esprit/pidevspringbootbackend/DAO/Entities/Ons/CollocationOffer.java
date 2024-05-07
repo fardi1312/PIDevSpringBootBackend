@@ -34,16 +34,17 @@ public class CollocationOffer {
     private String streetAddress;
 
     private int houseType ;
+
     @OneToMany(mappedBy ="collocationOffer",cascade = CascadeType.ALL)
     @JsonManagedReference
 
     private List<RoomDetails> roomDetailsList;
     private int availablePlaces ;
     private Date dateRent ;
+    private double averageRating ;
     private Date dateOffer ;
     private Gender gender ;
-    @Lob
-    @Column(columnDefinition = "MEDIUMBLOB")
+
     private String imageCollocation ;
     private float price ;
     private  boolean saved;
@@ -62,12 +63,16 @@ public class CollocationOffer {
 
     private User user;
 
-    @OneToMany(mappedBy = "collocationOffer")
     @JsonIgnore
+    @OneToMany(mappedBy = "collocationOffer")
+
     private  List<CollocationRequest> collocationRequests = new ArrayList<>() ;
 
-    @OneToMany(mappedBy = "collocationOffer")
+
     @JsonIgnore
+    @OneToMany(mappedBy = "collocationOffer")
+
+
     private  List<CollocationFeedback> collocationFeedbacks = new ArrayList<>();
 
     private int matchPercentage;

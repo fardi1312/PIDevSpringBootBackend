@@ -3,12 +3,11 @@ package tn.esprit.pidevspringbootbackend.RestControllers.Oms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.pidevspringbootbackend.DAO.Entities.Massoud.User;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.calendarEvent;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CalendarEventService;
+import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.CollocationOfferServices;
+import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.EmailServiceAchref;
 import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 
 import java.awt.image.BufferedImage;
@@ -19,16 +18,16 @@ import java.util.List;
 public class CalendarEventController {
 
     @Autowired
-    private CalendarEventService calendarEventService;
-
-    @Autowired
     private IUserService userService;
-
+    @Autowired
+    private CalendarEventService calendarEventService;
+    @Autowired
+    private CollocationOfferServices collocationOfferServices ;
+    @Autowired
+    private EmailServiceAchref emailService ;
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<calendarEvent>> getAllCalendarEventsByUser(@PathVariable("userId") long userId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-        List<calendarEvent> events = calendarEventService.getAllCalendarEventsByUser(user.getIdUser());
+        List<calendarEvent> events = calendarEventService.getAllCalendarEventsByUser(userId);
         if (events != null) {
             return ResponseEntity.ok(events);
         } else {
@@ -39,23 +38,53 @@ public class CalendarEventController {
     @GetMapping("/{id}/user/{userId}")
     public ResponseEntity<calendarEvent> getCalendarEventByIdAndUser(@PathVariable("id") long id,
                                                                      @PathVariable("userId") long userId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-        calendarEvent event = calendarEventService.getCalendarEventByIdAndUser(id, user.getIdUser());
+        calendarEvent event = calendarEventService.getCalendarEventByIdAndUser(id, userId);
         if (event != null) {
             return ResponseEntity.ok(event);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+    @PostMapping("/acceptRenting")
+    public calendarEvent acceptRenting(@RequestBody calendarEvent event) {
+        return calendarEventService.acceptRenting(event);
+    }
+
+    @PostMapping("/send-mail")
+    public ResponseEntity<String> sendMail1(@RequestBody calendarEvent event) {
+
+        boolean success = collocationOfferServices.SendMail1(event);
+        if (success) {
+            return new ResponseEntity<>("Email sent successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PostMapping("/send-mail-refusal")
+    public ResponseEntity<String> sendMail(@RequestBody calendarEvent event) {
+
+        boolean success = collocationOfferServices.SendMail2(event);
+        if (success) {
+            return new ResponseEntity<>("Email sent successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PostMapping("/acceptRenter")
+    public calendarEvent acceptRenter(@RequestBody calendarEvent event) {
+        return calendarEventService.acceptRenter(event);
+    }
+
 
 
     @PostMapping("/user/{userId}")
     public ResponseEntity<calendarEvent> createCalendarEventForUser(@PathVariable("userId") long userId,
                                                                     @RequestBody calendarEvent event) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-        calendarEvent createdEvent = calendarEventService.createCalendarEventForUser(user.getIdUser(), event);
+        calendarEvent createdEvent = calendarEventService.createCalendarEventForUser(userId, event);
         if (createdEvent != null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdEvent);
         } else {
@@ -79,9 +108,7 @@ public class CalendarEventController {
     public ResponseEntity<calendarEvent> updateCalendarEventForUser(
                                                                     @PathVariable("userId") long userId,
                                                                     @RequestBody calendarEvent updatedEvent) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-        calendarEvent updated = calendarEventService.updateCalendarEventForUser( user.getIdUser(), updatedEvent);
+        calendarEvent updated = calendarEventService.updateCalendarEventForUser( userId, updatedEvent);
         if (updated != null) {
             return ResponseEntity.ok(updated);
         } else {
@@ -92,9 +119,7 @@ public class CalendarEventController {
     @DeleteMapping("/{id}/user/{userId}")
     public ResponseEntity<Void> deleteCalendarEventForUser(@PathVariable("id") long id,
                                                            @PathVariable("userId") long userId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(authentication.getName());
-        calendarEventService.deleteCalendarEventForUser(id, user.getIdUser());
+        calendarEventService.deleteCalendarEventForUser(id, userId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -50,8 +50,9 @@ public class CarpoolingOffer {
     private Gender ForWho;
     @Enumerated(EnumType.STRING)
     private CarpoolingType carpoolingType;
+    private double priceApres;
 
-    private Boolean radioon;
+        private Boolean radioon;
     private Boolean climatise ;
     private Boolean chauffage ;
     private Boolean smoking ;
@@ -67,7 +68,7 @@ public class CarpoolingOffer {
     @OneToMany(cascade = CascadeType.ALL, mappedBy="carpoolingoffer")
 
     private List<CarpoolingRequest> CarpoolingRequests  = new ArrayList<>();
-    @JsonIgnore
+@JsonIgnore
     @ManyToOne
     User userO;
 

@@ -16,6 +16,6 @@ public class PointCount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     private Long IdPointCount;
-   private double nbPoint;
-
+    private double nbPoint;
+    private double nbFidelite;
 }

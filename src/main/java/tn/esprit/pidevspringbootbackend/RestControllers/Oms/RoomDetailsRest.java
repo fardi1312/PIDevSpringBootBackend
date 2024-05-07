@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.pidevspringbootbackend.DAO.Entities.Ons.RoomDetails;
 import tn.esprit.pidevspringbootbackend.Services.Classes.Oms.RoomDetailsService;
+import tn.esprit.pidevspringbootbackend.Services.Interfaces.Massoud.IUserService;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public class RoomDetailsRest {
     @Autowired
     private RoomDetailsService roomDetailsService;
 
+    @Autowired
+    private IUserService userService;
     @GetMapping
     public ResponseEntity<List<RoomDetails>> getAllRoomDetails() {
         List<RoomDetails> roomDetailsList = roomDetailsService.getAllRoomDetails();
